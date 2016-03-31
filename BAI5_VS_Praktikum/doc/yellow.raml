@@ -1,0 +1,84 @@
+#%RAML 0.8
+title: services
+version: 0.1
+baseUri: http://localhost:4567
+schemas:
+  - service: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "service",
+        "required": true,
+        "properties": {
+          "name": { "type": "string", "required": true  },
+          "description": { "type": "string" },
+          "service": { "type": "string", "required": true  },
+          "uri": { "type": "string", "required": true  }
+        }
+      }
+resourceTypes:
+  - list:
+      get:
+        description: List of available <<resourcePathName|!singularize>>
+        responses:
+          200:
+            body:
+              application/json:
+                schema: |
+                  {
+                    "type": "array",
+                    "$schema": "http://json-schema.org/draft-03/schema",
+                    "id": "http://jsonschema.net",
+                    "required": true,
+                    "items": {"$ref": "<<schema>>" }
+                  }
+                example: <<example>>  
+  - item:  
+      get:
+        description: Gets a <<resourcePathName>>
+        responses:
+          200:
+            body:
+              application/json:
+                schema: <<schema>>
+                example: <<example>>
+      put:
+        description: places a <<resourcePathName>>
+        body:
+          application/json:
+            schema: <<schema>>
+            example: <<example>>
+  - collection:
+      type: 
+        list:
+          schema: <<schema>>
+          example: <<getexample>>
+      post:
+        description: creates a new <<resourcePathName|!singularize>>
+        body:
+          application/json:
+            schema: <<schema>>
+            example: <<postexample>>
+        response:
+          201:
+
+traits:
+  - expandable:
+      queryParameters:
+        expanded: 
+          description: Lets all returned objects be expanded
+/services:
+  type: { collection : { schema: service, getexample: "", postexample: "" } }
+  get: 
+    is: [ expandable ]
+  /{id}:
+    type: { item: { schema: service, example: "" } }
+    delete:
+      description: removes the service from the registry
+  /of/name/{name}:
+    type: { list: { schema: service, example: "" } }
+    is: [ expandable ]
+  /of/type/{type}:
+    type: { list: { schema: service, example: "" } }
+    is: [ expandable ]
+
