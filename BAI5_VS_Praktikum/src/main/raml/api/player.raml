@@ -1,0 +1,48 @@
+#%RAML 0.8
+title: RESTopolyPlayer
+version: 0.1
+baseUri: http://localhost:4567
+schemas:
+  - player: |
+      {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-03/schema",
+        "id": "player",
+        "required": true,
+        "description":"Information about a player of a game",
+        "properties": {
+          "id":  { "type": "string", "required": true, "description":"uri the resource" },
+          "name": { "type": "string", "description":"A name to identify the player for humans" }
+        }
+      }
+
+/player:
+	description: "Player shit"
+	get:
+		description: "Gibt alle Spieler zurück"
+		responses:
+			200:
+				body:
+					application/json:
+					schema: "player"
+					example: [ {id: "/player/42"} ]
+	post:
+		description: "Erzeugt einen neuen Spieler"
+		body:
+		application/json:
+			schema: player
+			example: {name: "Lars"}
+		responses:
+			201:
+	/{playerid}:
+		get:
+			description: "Gibt den Zustand des Spielers zurück"
+			responses:
+				200:
+					body:
+						application/json:
+							example: |
+							{
+								id: "/player/42",
+								name: "Lars"
+							}
