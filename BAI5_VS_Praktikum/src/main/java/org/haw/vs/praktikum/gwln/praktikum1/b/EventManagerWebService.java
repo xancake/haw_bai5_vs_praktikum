@@ -6,25 +6,43 @@ import static spark.Spark.post;
 
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class EventManagerWebService {
-	private static final String YELLOW_PAGES = "http://172.18.0.5:4567/services/14";
+	private static final String YELLOW_PAGES = "http://172.18.0.5:4567/services";
+	
+	private static final String NAME = "Event Manager Service 42_1337_69";
+	private static final String DESCRIPTION = "Bester Event Manager 42_1337_69";
+	private static final String SERVICE = "Event Manager Service";
+	private static final String URI = "http://abq335_events:4567/events";
 	
 	public static void main(String[] args) {
 		try {
+			HttpResponse<JsonNode> jsonResponse = Unirest.get(YELLOW_PAGES+"/of/name/"+NAME).asJson();
 			JSONObject json = new JSONObject();
-			json.put("name", "Event Manager Service");
-			json.put("description", "Bester Event Manager 42_1337_69");
-			json.put("service", "Event Manager Service");
-			json.put("uri", "http://abq335_events:4567/events");
-			HttpResponse<String> response = Unirest.put(YELLOW_PAGES).header("Content-Type", "application/json").body(json).asString();
-			System.out.println(response.getBody());
+			json.put("name", NAME);
+			json.put("description", DESCRIPTION);
+			json.put("service", SERVICE);
+			json.put("uri", URI);
+			if(jsonResponse.getStatus() == 200){
+				JSONArray services = jsonResponse.getBody().getArray();
+				if(services.length()>0) {
+					// TODO: auf einem toten Service registrieren (put)
+					// Wenn es keinen gibt, müssen wir evtl. trotzdem putten
+				} else {
+					HttpResponse<String> response = Unirest.post(YELLOW_PAGES)
+							.header("Content-Type", "application/json")
+							.body(json)
+							.asString();
+				}
+			}
 		} catch (UnirestException e) {
 			e.printStackTrace();
 		}
