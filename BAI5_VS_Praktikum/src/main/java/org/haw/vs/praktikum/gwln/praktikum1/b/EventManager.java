@@ -1,15 +1,12 @@
 package org.haw.vs.praktikum.gwln.praktikum1.b;
 
-import static spark.Spark.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import com.google.gson.Gson;
 
 
 public class EventManager {
-	
 	private List<Event> events = new ArrayList<>();
 	
 	public void addEvent(Event e) {
@@ -48,47 +45,7 @@ public class EventManager {
 		events.removeAll(matchingEvents);
 	}
 	
-	public static void main(String[] args) {
-		EventManager manager = new EventManager();
-		Gson gson = new Gson();
-		
-		post("/events", (request,response) -> {
-			Event event = gson.fromJson(request.body(), Event.class);
-			
-			manager.addEvent(event);
-			
-			return "ok";
-		});
-		get("/events", (request, response) -> {
-			String game = request.queryParams("game");
-			String type = request.queryParams("type");
-			String name = request.queryParams("name");
-			String reason  = request.queryParams("request");
-			String resource = request.queryParams("resource");
-			String player = request.queryParams("player");
-			
-			List<Event> filteredEvents = manager.getMatchingEvents(game, type, name, reason, resource, player);
-			
-			return gson.toJson(filteredEvents);
-		});
-		delete("/events", (request, response) -> {
-			String game = request.queryParams("game");
-			String type = request.queryParams("type");
-			String name = request.queryParams("name");
-			String reason  = request.queryParams("request");
-			String resource = request.queryParams("resource");
-			String player = request.queryParams("player");
-			
-			manager.deleteEvent(game, type, name, reason, resource, player);
-			
-			return "ok";
-		});
-		get("/events/:eventid", (request, response) -> {
-			String id = request.params(":eventid");
-			
-			Event event = manager.getEvent(id);
-			
-			return gson.toJson(event);
-		});
+	public int getSize() {
+		return events.size();
 	}
 }
