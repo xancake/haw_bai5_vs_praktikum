@@ -1,21 +1,19 @@
 package org.haw.vs.praktikum.gwln.praktikum1.b;
 
 import static spark.Spark.*;
-
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
-
 import org.haw.vs.praktikum.gwln.YellowPagesRegistry;
-
 import spark.Request;
 import spark.Response;
-
 import com.google.gson.Gson;
 
 public class EventManagerWebService {
 	private static final String NAME = "Event Manager Service 42_1337_69";
 	private static final String DESCRIPTION = "Bester Event Manager 42_1337_69";
 	private static final String SERVICE = "Event Manager Service";
-	private static final String URI = "http://abq335_events:4567/events";
+//	private static final String URI = "http://abs969-events:4567/events";
 	
 	private static final EventManager MANAGER = new EventManager();
 	
@@ -69,8 +67,10 @@ public class EventManagerWebService {
 		return new Gson().toJson(event);
 	}
 	
-	public static void main(String[] args) {
-		YellowPagesRegistry.registerOrUpdateService(NAME, DESCRIPTION, SERVICE, URI);
+	public static void main(String[] args) throws UnknownHostException {
+		String ip = InetAddress.getLocalHost().getHostAddress();
+		String uri = "http://"+ ip + ":4567/events";
+		YellowPagesRegistry.registerOrUpdateService(NAME, DESCRIPTION, SERVICE, uri);
 		post("/events", EventManagerWebService::postEvent);
 		get("/events", EventManagerWebService::getEvents);
 		delete("/events", EventManagerWebService::deleteEvent);

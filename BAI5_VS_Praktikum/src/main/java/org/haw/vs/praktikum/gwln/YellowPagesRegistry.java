@@ -9,11 +9,11 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class YellowPagesRegistry {
-	private static final String YELLOW_PAGES = "http://172.18.0.5:4567/services";
+	private static final String YELLOW_PAGES = "http://172.18.0.5:4567";
 	
 	public static String registerOrUpdateService(String name, String description, String service, String uri) {
-		if(isServiceRegistered(name, description, service, uri)) {
-			String id = getServiceId(name, description, service, uri);
+		String id = getServiceId(name, description, service, uri);
+		if(id != null) {
 			updateServiceRegistry(id, name, description, service, uri);
 			return id;
 		} else {
@@ -22,16 +22,22 @@ public class YellowPagesRegistry {
 		}
 	}
 	
-	public static boolean isServiceRegistered(String name, String description, String service, String uri) {
+	public static String getServiceId(String name, String description, String service, String uri) {
 		try {
-			HttpResponse<JsonNode> jsonResponse = Unirest.get(YELLOW_PAGES + "/of/name/" + name).asJson();
+			HttpResponse<JsonNode> jsonResponse = Unirest.get(YELLOW_PAGES + "/services/of/name/" + name + "?expanded").asJson();
 			if(jsonResponse.getStatus() == 200) {
-				JSONArray services = jsonResponse.getBody().getArray();
-				if(services.length() > 0) {
-					// TODO: auf einem toten Service registrieren (put)
-					// Wenn es keinen gibt, müssen wir evtl. trotzdem putten
+				JSONObject services = jsonResponse.getBody().getObject();
+				JSONArray servicesArray = services.getJSONArray("services");
+				
+				for(Object object : servicesArray) {
+					JSONObject serviceObject = (JSONObject)object;
+					String id     = serviceObject.getString("_uri");
+					String status = serviceObject.getString("status");
+					if("dead".equals(status)) {
+						return id;
+					}
 				}
-				return false;
+				return null;
 			}
 			throw new IllegalArgumentException("Yellow-Pages lieferte Statuscode '" + jsonResponse.getStatus() + "'");
 		} catch(UnirestException e) {
@@ -40,16 +46,9 @@ public class YellowPagesRegistry {
 		}
 	}
 	
-	public static String getServiceId(String name, String description, String service, String uri) {
-		
-		
-		
-		return null;
-	}
-	
 	public static void registerService(String name, String description, String service, String uri) {
 		try {
-			HttpResponse<String> response = Unirest.post(YELLOW_PAGES)
+			Unirest.post(YELLOW_PAGES + "/services")
 					.header("Content-Type", "application/json")
 					.body(createYellowPagesJSON(name, description, service, uri))
 					.asString();
@@ -61,10 +60,19 @@ public class YellowPagesRegistry {
 	
 	public static void updateServiceRegistry(String id, String name, String description, String service, String uri) {
 		try {
-			HttpResponse<String> response = Unirest.put(YELLOW_PAGES + "/" + id)
+			Unirest.put(YELLOW_PAGES + id)
 					.header("Content-Type", "application/json")
 					.body(createYellowPagesJSON(name, description, service, uri))
 					.asString();
+		} catch (UnirestException e) {
+			// TODO: besseren Exceptiontypen, idealerweise eine checked-Exception
+			throw new RuntimeException("Yellow-Pages Registry nicht erreichbar", e);
+		}
+	}
+	
+	public static void unregisterService(String id) {
+		try {
+			Unirest.delete(YELLOW_PAGES + id).asString();
 		} catch (UnirestException e) {
 			// TODO: besseren Exceptiontypen, idealerweise eine checked-Exception
 			throw new RuntimeException("Yellow-Pages Registry nicht erreichbar", e);
