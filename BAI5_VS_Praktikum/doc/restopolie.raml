@@ -316,6 +316,14 @@ traits:
           description: The id of the game
           example: 42
           required: true
+  - transactional:
+      displayName: Transactional
+      description: This resource may be added to a transaction, thus changes will be linked to the outcome of the transaction
+      queryParameters:
+        transaction:
+          description: The uri of the transaction to be added to
+          example: /transactions/42
+          required: false
   - action:
       responses:
         200:
@@ -346,7 +354,7 @@ traits:
         item:
           schema: "user"
           example: |
-            {"id":"/user/mario","name":"Mario","uri":"http://localhost:4567/client/mario"}
+            {"id":"/users/mario","name":"Mario","uri":"http://localhost:4567/client/mario"}
       put:
         description: Registers the user/player
         queryParameters:
@@ -436,7 +444,9 @@ traits:
           item:
             schema: "player"
             example: |
-              {"id":"/games/42/players/mario", "user":"/user/mario","ready":false}
+              {"id":"/games/42/players/mario", "user":"/user/mario","ready":false,
+                "pawn":"/board/21/pawns/mario", "account":"/banks/4711/accounts/mario",
+                "ready":"/games/42/players/mario/ready" }
         delete:
           description: "Removes the player from the game"
         /ready:
@@ -638,6 +648,7 @@ traits:
                     }
     /transfer/from/{from}/to/{to}/{amount}:
       post:
+        is: [transactional]
         description: creates a new bank transfer from a account id to an other
         body:
           application/json:
@@ -653,6 +664,7 @@ traits:
             description: insufficient fonds
     /transfer/to/{to}/{amount}:
       post:
+        is: [transactional]
         description: creates a new bank transfer from the bank itself
         body:
           application/json:
@@ -666,6 +678,7 @@ traits:
                 schema: events
     /transfer/from/{from}/{amount}:
       post:
+        is: [transactional]
         description: creates a new bank transfer to the bank itself
         body:
           application/json:
@@ -679,6 +692,29 @@ traits:
                 schema: events
           403:
             description: insufficient fonds
+    /transaction:
+      post:
+        description: begins a new transaction
+        queryParameters:
+          phases: 
+            description: tells if it is a 1- or 2-phase
+            enum: 
+              - 1
+              - 2
+            default: "1"
+      /{tid}:
+        get:
+          description: returns the state of the transaction
+        put:
+          description: commits/readies the transaction
+          queryParameters:
+            state:
+              description: "sets the sate of the transaction. Default: commit"
+              enum: [ "ready", "commit" ]
+              default: "commit"
+        delete:
+          description: abort/rollback an transaction
+                
     /accounts:
       type:
         collection:
@@ -791,7 +827,7 @@ traits:
         application/json:
           schema: "events"
 /events:
-    type: { collection: { schema: "event", "getexample":"", "postexample":"" } }
+    type: { collection: { schema: "event", "getexample":"", "postexample":"{ 'game':'/games/42' 'type':'payment', 'name':'NoBody has payed SomebBody','reason':'Visit on Badstrasse, paying rent', 'resource':'/banks/21/transfers/4711','player':'/games/42/players/NoBody'}" } }
     post:
       description: adds a new event to the collection of events
     get:
