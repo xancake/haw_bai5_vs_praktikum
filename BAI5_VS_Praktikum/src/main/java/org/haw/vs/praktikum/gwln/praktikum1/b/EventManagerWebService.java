@@ -4,7 +4,8 @@ import static spark.Spark.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-import org.haw.vs.praktikum.gwln.YellowPagesRegistry;
+import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesNotAvailableException;
+import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesRegistry;
 import spark.Request;
 import spark.Response;
 import com.google.gson.Gson;
@@ -68,9 +69,13 @@ public class EventManagerWebService {
 	}
 	
 	public static void main(String[] args) throws UnknownHostException {
-		String ip = InetAddress.getLocalHost().getHostAddress();
-		String uri = "http://"+ ip + ":4567/events";
-		YellowPagesRegistry.registerOrUpdateService(NAME, DESCRIPTION, SERVICE, uri);
+		try {
+			String ip = InetAddress.getLocalHost().getHostAddress();
+			String uri = "http://"+ ip + ":4567/events";
+			YellowPagesRegistry.registerOrUpdateService(NAME, DESCRIPTION, SERVICE, uri);
+		} catch(YellowPagesNotAvailableException e) {
+			e.printStackTrace();
+		}
 		post("/events", EventManagerWebService::postEvent);
 		get("/events", EventManagerWebService::getEvents);
 		delete("/events", EventManagerWebService::deleteEvent);
