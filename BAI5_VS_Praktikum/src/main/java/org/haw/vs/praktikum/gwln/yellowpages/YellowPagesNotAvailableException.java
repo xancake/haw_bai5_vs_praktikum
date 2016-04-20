@@ -2,8 +2,10 @@ package org.haw.vs.praktikum.gwln.yellowpages;
 
 @SuppressWarnings("serial")
 public class YellowPagesNotAvailableException extends Exception {
+	private static final String DEFAULT_MESSAGE = "Yellow-Pages nicht erreichbar";
+	
 	public YellowPagesNotAvailableException() {
-		super();
+		this(DEFAULT_MESSAGE);
 	}
 	
 	public YellowPagesNotAvailableException(String message) {
@@ -12,5 +14,9 @@ public class YellowPagesNotAvailableException extends Exception {
 	
 	public YellowPagesNotAvailableException(String message, Throwable cause) {
 		super(message, cause);
+	}
+	
+	public YellowPagesNotAvailableException(Throwable cause) {
+		this(DEFAULT_MESSAGE, cause);
 	}
 }
