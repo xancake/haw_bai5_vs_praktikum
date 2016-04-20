@@ -18,18 +18,21 @@ public class EventManagerWebService {
 //	private static final String URI = "http://abs969-events:4567/events";
 	
 	private static final EventManager MANAGER = new EventManager();
+	private static int EVENT_COUNTER = 0;
 	
 	private static String postEvent(Request request, Response response) {
-		JSONObject bodyJson = new JSONObject(request.body());
-		String game = bodyJson.getString("game");
-		String type = bodyJson.getString("type");
-		String name = bodyJson.getString("name");
-		String reason  = bodyJson.getString("reason");
-		String resource = bodyJson.optString("resource");
-		String player = bodyJson.optString("player");
-		String time = bodyJson.optString("time");
+		Event requestEvent = JsonEventMarshaller.unmarshall(new JSONObject(request.body()));
 		
-		Event event = new Event(game, type, name, reason, resource, player, time);
+		Event event = new Event(
+				String.valueOf(++EVENT_COUNTER),
+				requestEvent.getGame(),
+				requestEvent.getType(),
+				requestEvent.getName(),
+				requestEvent.getReason(),
+				requestEvent.getResource(),
+				requestEvent.getPlayer(),
+				requestEvent.getTime()
+		);
 		MANAGER.addEvent(event);
 		
 		response.status(201);
@@ -49,7 +52,7 @@ public class EventManagerWebService {
 		return new Gson().toJson(filteredEvents);
 	}
 	
-	private static String deleteEvent(Request request, Response response) {
+	private static String deleteEvents(Request request, Response response) {
 		String game = request.queryParams("game");
 		String type = request.queryParams("type");
 		String name = request.queryParams("name");
@@ -57,7 +60,7 @@ public class EventManagerWebService {
 		String resource = request.queryParams("resource");
 		String player = request.queryParams("player");
 		
-		MANAGER.deleteEvent(game, type, name, reason, resource, player);
+		MANAGER.deleteEvents(game, type, name, reason, resource, player);
 		
 		response.status(204);
 		return "ok";
@@ -68,7 +71,11 @@ public class EventManagerWebService {
 		
 		Event event = MANAGER.getEvent(id);
 		
-		return new Gson().toJson(event);
+		if(event == null) {
+			response.status(404);
+			return null;
+		}
+		return JsonEventMarshaller.marshall(event).toString();
 	}
 	
 	public static void main(String[] args) throws UnknownHostException {
@@ -81,7 +88,7 @@ public class EventManagerWebService {
 		
 		post("/events", EventManagerWebService::postEvent);
 		get("/events", EventManagerWebService::getEvents);
-		delete("/events", EventManagerWebService::deleteEvent);
+		delete("/events", EventManagerWebService::deleteEvents);
 		get("/events/:eventid", EventManagerWebService::getEvent);
 	}
 }

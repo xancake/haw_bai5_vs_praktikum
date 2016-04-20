@@ -33,7 +33,7 @@ public class EventManager {
 		}).collect(Collectors.toList());
 	}
 	
-	public void deleteEvent(String game, String type, String name, String reason, String resource, String player) {
+	public void deleteEvents(String game, String type, String name, String reason, String resource, String player) {
 		List<Event> matchingEvents = events.stream().filter((event) -> {
 			return (game == null     || Pattern.matches(game,     event.getGame()))
 				&& (type == null     || Pattern.matches(type,     event.getType()))
