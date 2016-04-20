@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesNotAvailableException;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesRegistry;
+import org.json.JSONObject;
 import spark.Request;
 import spark.Response;
 import com.google.gson.Gson;
@@ -19,17 +20,19 @@ public class EventManagerWebService {
 	private static final EventManager MANAGER = new EventManager();
 	
 	private static String postEvent(Request request, Response response) {
-		String game = request.queryParams("game");
-		String type = request.queryParams("type");
-		String name = request.queryParams("name");
-		String reason  = request.queryParams("request");
-		String resource = request.queryParams("resource");
-		String player = request.queryParams("player");
-		String time = request.queryParams("time");
+		JSONObject bodyJson = new JSONObject(request.body());
+		String game = bodyJson.getString("game");
+		String type = bodyJson.getString("type");
+		String name = bodyJson.getString("name");
+		String reason  = bodyJson.getString("reason");
+		String resource = bodyJson.optString("resource");
+		String player = bodyJson.optString("player");
+		String time = bodyJson.optString("time");
 		
-		Event event = new Event(String.valueOf(MANAGER.getSize()+1), game, type, name, reason, resource, player, time);
+		Event event = new Event(game, type, name, reason, resource, player, time);
 		MANAGER.addEvent(event);
 		
+		response.status(201);
 		return "ok";
 	}
 	
@@ -37,13 +40,12 @@ public class EventManagerWebService {
 		String game = request.queryParams("game");
 		String type = request.queryParams("type");
 		String name = request.queryParams("name");
-		String reason  = request.queryParams("request");
+		String reason  = request.queryParams("reason");
 		String resource = request.queryParams("resource");
 		String player = request.queryParams("player");
 		
 		List<Event> filteredEvents = MANAGER.getMatchingEvents(game, type, name, reason, resource, player);
 		
-		response.status(200);
 		return new Gson().toJson(filteredEvents);
 	}
 	
@@ -51,12 +53,13 @@ public class EventManagerWebService {
 		String game = request.queryParams("game");
 		String type = request.queryParams("type");
 		String name = request.queryParams("name");
-		String reason  = request.queryParams("request");
+		String reason  = request.queryParams("reason");
 		String resource = request.queryParams("resource");
 		String player = request.queryParams("player");
 		
 		MANAGER.deleteEvent(game, type, name, reason, resource, player);
 		
+		response.status(204);
 		return "ok";
 	}
 	
@@ -76,6 +79,7 @@ public class EventManagerWebService {
 		} catch(YellowPagesNotAvailableException e) {
 			e.printStackTrace();
 		}
+		
 		post("/events", EventManagerWebService::postEvent);
 		get("/events", EventManagerWebService::getEvents);
 		delete("/events", EventManagerWebService::deleteEvent);

@@ -25,7 +25,7 @@ public class EventManager {
 	public List<Event> getMatchingEvents(String game, String type, String name, String reason, String resource, String player) {
 		return events.stream().filter((event) -> {
 			return (game == null     || Pattern.matches(game,     event.getGame()))
-				&& (type == null     || Pattern.matches(type,     event.getTime()))
+				&& (type == null     || Pattern.matches(type,     event.getType()))
 				&& (name == null     || Pattern.matches(name,     event.getName()))
 				&& (reason == null   || Pattern.matches(reason,   event.getReason()))
 				&& (resource == null || Pattern.matches(resource, event.getResource()))
@@ -36,7 +36,7 @@ public class EventManager {
 	public void deleteEvent(String game, String type, String name, String reason, String resource, String player) {
 		List<Event> matchingEvents = events.stream().filter((event) -> {
 			return (game == null     || Pattern.matches(game,     event.getGame()))
-				&& (type == null     || Pattern.matches(type,     event.getTime()))
+				&& (type == null     || Pattern.matches(type,     event.getType()))
 				&& (name == null     || Pattern.matches(name,     event.getName()))
 				&& (reason == null   || Pattern.matches(reason,   event.getReason()))
 				&& (resource == null || Pattern.matches(resource, event.getResource()))

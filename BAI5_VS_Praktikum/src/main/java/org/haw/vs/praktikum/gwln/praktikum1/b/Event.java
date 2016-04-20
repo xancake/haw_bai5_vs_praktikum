@@ -3,11 +3,12 @@ package org.haw.vs.praktikum.gwln.praktikum1.b;
 import java.util.Objects;
 
 public class Event {
+	private static int COUNTER = 0;
+	
 	private String id,game,type,name,reason,resource,player,time;
 	
-	public Event(String id, String game, String type, String name, String reason, String resource, String player,
-			String time) {
-		this.id = Objects.requireNonNull(id);
+	public Event(String game, String type, String name, String reason, String resource, String player, String time) {
+		this.id = String.valueOf(++COUNTER);
 		this.game = Objects.requireNonNull(game);
 		this.type = Objects.requireNonNull(type);
 		this.name = Objects.requireNonNull(name);
