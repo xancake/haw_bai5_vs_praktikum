@@ -13,7 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import org.haw.vs.praktikum.gwln.praktikum2.b.client.games.Game;
+import org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.game.Game;
 
 public class RestopolyLobbyUI {
 	private static final String TITLE = "Restopoly Lobby";

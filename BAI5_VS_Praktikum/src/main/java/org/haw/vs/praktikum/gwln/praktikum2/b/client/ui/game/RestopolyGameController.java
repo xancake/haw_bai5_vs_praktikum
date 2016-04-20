@@ -1,8 +1,8 @@
 package org.haw.vs.praktikum.gwln.praktikum2.b.client.ui.game;
 
 import java.util.Objects;
-import org.haw.vs.praktikum.gwln.praktikum2.b.client.games.DiceRestClient;
-import org.haw.vs.praktikum.gwln.praktikum2.b.client.games.Game;
+import org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.dice.DiceRestClient;
+import org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.game.Game;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class RestopolyGameController implements RestopolyGameListener_I {

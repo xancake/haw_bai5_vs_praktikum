@@ -1,4 +1,4 @@
-package org.haw.vs.praktikum.gwln.praktikum2.b.client.games;
+package org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.game;
 
 import com.google.gson.JsonObject;
 

@@ -1,8 +1,8 @@
 package org.haw.vs.praktikum.gwln.praktikum2.b.client.ui.lobby;
 
 import java.util.List;
-import org.haw.vs.praktikum.gwln.praktikum2.b.client.games.Game;
-import org.haw.vs.praktikum.gwln.praktikum2.b.client.games.GamesRestClient;
+import org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.game.Game;
+import org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.game.GamesRestClient;
 import org.haw.vs.praktikum.gwln.praktikum2.b.client.ui.game.RestopolyGameController;
 import com.mashape.unirest.http.exceptions.UnirestException;
 

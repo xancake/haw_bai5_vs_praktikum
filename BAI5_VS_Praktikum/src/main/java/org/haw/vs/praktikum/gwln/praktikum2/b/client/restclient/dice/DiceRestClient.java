@@ -1,4 +1,4 @@
-package org.haw.vs.praktikum.gwln.praktikum2.b.client.games;
+package org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.dice;
 
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
