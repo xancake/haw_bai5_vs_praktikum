@@ -13,7 +13,7 @@ public class AccountJsonMarshaller {
 	}
 	
 	public static Account unmarshall(JSONObject json) {
-		String player = "/" + json.getString("player");
+		String player = json.getString("player");
 		int saldo = json.getInt("saldo");
 		return new Account(player, saldo);
 	}

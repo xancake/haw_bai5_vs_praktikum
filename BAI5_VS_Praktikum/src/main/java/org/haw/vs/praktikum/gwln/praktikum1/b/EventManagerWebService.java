@@ -15,9 +15,9 @@ public class EventManagerWebService {
 	private static final String NAME = "Event Manager Service 42_1337_69";
 	private static final String DESCRIPTION = "Bester Event Manager 42_1337_69";
 	private static final String SERVICE = "Event Manager Service";
-//	private static final String URI = "http://abs969-events:4567/events";
 	
 	private static final EventManager MANAGER = new EventManager();
+	private static String URI;
 	private static int EVENT_COUNTER = 0;
 	
 	private static String postEvent(Request request, Response response) {
@@ -35,6 +35,7 @@ public class EventManagerWebService {
 		);
 		MANAGER.addEvent(event);
 		
+		response.header("Location", URI + "/events/" + event.getId());
 		response.status(201);
 		return "ok";
 	}
@@ -80,8 +81,8 @@ public class EventManagerWebService {
 	
 	public static void main(String[] args) throws UnknownHostException {
 		try {
-			String uri = "http://" + InetAddress.getLocalHost().getHostAddress() + ":4567/events";
-			YellowPagesRegistry.registerOrUpdateService(NAME, DESCRIPTION, SERVICE, uri);
+			URI = "http://" + InetAddress.getLocalHost().getHostAddress() + ":4567";
+			YellowPagesRegistry.registerOrUpdateService(NAME, DESCRIPTION, SERVICE, URI + "/events");
 		} catch(YellowPagesNotAvailableException e) {
 			e.printStackTrace();
 		}

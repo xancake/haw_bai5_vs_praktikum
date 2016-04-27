@@ -10,9 +10,9 @@ public class BankManager {
 		_gameIdBankMapping = new HashMap<String, Bank>();
 	}
 	
-	public void createAccount(String gameId, String player, int saldo) {
+	public void createAccount(String gameId, Account account) {
 		Bank bank = getBankLazily(gameId);
-		bank.erzeugeAccount(player, saldo);
+		bank.addAccount(account);
 	}
 	
 	public Account getAccount(String gameId, String accountId) {

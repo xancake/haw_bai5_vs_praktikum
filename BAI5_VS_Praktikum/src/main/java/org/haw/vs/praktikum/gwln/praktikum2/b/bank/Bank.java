@@ -14,14 +14,14 @@ public class Bank {
 		_transaktionen = new ArrayList<Transaktion>();
 	}
 	
-	public void erzeugeAccount(String player, int saldo) {
-		if(!_playerAccountMapping.containsKey(player)) {
-			_playerAccountMapping.put(player, new Account(player, saldo));
+	public void addAccount(Account account) {
+		if(!_playerAccountMapping.containsKey(account.getId())) {
+			_playerAccountMapping.put(account.getId(), account);
 		}
 	}
 	
-	public Account getAccount(String player) {
-		return _playerAccountMapping.get(player);
+	public Account getAccount(String id) {
+		return _playerAccountMapping.get(id);
 	}
 	
 	public void transferTo(Account to, int amount) {

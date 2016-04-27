@@ -14,16 +14,15 @@ public class BankManagerWebService {
 	private static final String SERVICE = "Bank Service";
 	
 	private static final BankManager MANAGER = new BankManager();
+	private static String URI;
 	
 	private static String postAccount(Request request, Response response) {
 		String gameId = request.params(":gameId");
 		
 		Account account = AccountJsonMarshaller.unmarshall(new JSONObject(request.body()));
-		String player = account.getPlayer();
-		int saldo = account.getSaldo();
+		MANAGER.createAccount(gameId, account);
 		
-		MANAGER.createAccount(gameId, player.substring(player.lastIndexOf("/")+1), saldo);
-		
+		response.header("Location", URI + "/banks/" + gameId + "/accounts/" + account.getId());
 		response.status(201);
 		return "Konto erfolgreich angelegt";
 	}
@@ -96,8 +95,8 @@ public class BankManagerWebService {
 	
 	public static void main(String... args) throws Exception {
 		try {
-			String uri = "http://" + InetAddress.getLocalHost().getHostAddress() + ":4567/banks";
-			YellowPagesRegistry.registerOrUpdateService(NAME, DESCRIPTION, SERVICE, uri);
+			URI = "http://" + InetAddress.getLocalHost().getHostAddress() + ":4567";
+			YellowPagesRegistry.registerOrUpdateService(NAME, DESCRIPTION, SERVICE, URI + "/banks");
 		} catch(YellowPagesNotAvailableException e) {
 			e.printStackTrace();
 		}
