@@ -89,6 +89,11 @@ public class BankManagerWebService {
 		}
 	}
 	
+	private static String getAlive(Request request, Response response){
+		response.status(200);
+		return "I'm alive";
+	}
+	
 	public static void main(String... args) throws Exception {
 		try {
 			String uri = "http://" + InetAddress.getLocalHost().getHostAddress() + ":4567/banks";
@@ -97,6 +102,7 @@ public class BankManagerWebService {
 			e.printStackTrace();
 		}
 		
+		get("/banks", BankManagerWebService::getAlive);
 		post("/banks/:gameId/accounts", BankManagerWebService::postAccount);
 		get("/banks/:gameId/accounts/:accountId", BankManagerWebService::getAccount);
 		post("/banks/:gameId/transfer/to/:to/:amount", BankManagerWebService::postTransferTo);
