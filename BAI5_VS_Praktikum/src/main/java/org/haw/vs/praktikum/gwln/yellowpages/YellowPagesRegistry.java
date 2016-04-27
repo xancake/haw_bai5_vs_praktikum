@@ -10,9 +10,7 @@ public class YellowPagesRegistry {
 		try {
 			Service overwriteService = findFirstDeadService(name, description, type, uri);
 			if(overwriteService == null) {
-				YELLOW_PAGES.postService(new Service(name, type, uri, description));
-				List<Service> services = YELLOW_PAGES.getServices();
-				return services.get(services.size()-1).getId();
+				return YELLOW_PAGES.postService(new Service(name, type, uri, description));
 			} else {
 				YELLOW_PAGES.putService(overwriteService.getId(), new Service(name, type, uri, description));
 				return overwriteService.getId();

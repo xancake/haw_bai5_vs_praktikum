@@ -50,13 +50,15 @@ public class YellowPagesRestClient {
 	 * Registriert den übergebenen Service am Yellow-Pages.
 	 * Der Aufruf entspricht der API-Funktion {@code POST /services}.
 	 * @param service Der zu registrierende Service
+	 * @returns Eine URL unter der der angelegte Service aufrufbar ist
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
-	public void postService(Service service) throws UnirestException {
-		Unirest.post(_url + "/services")
+	public String postService(Service service) throws UnirestException {
+		HttpResponse<String> response = Unirest.post(_url + "/services")
 				.header("Content-Type", "application/json")
 				.body(marshall(service))
 				.asString();
+		return response.getHeaders().getFirst("Location");
 	}
 	
 	/**
