@@ -24,14 +24,14 @@ schemas:
 			200:
 				body:
 					application/json:
-					schema: "player"
-					example: [ {id: "/player/42"} ]
+						schema: "player"
+						example: [ {id: "/player/42"} ]
 	post:
 		description: "Erzeugt einen neuen Spieler"
 		body:
-		application/json:
-			schema: player
-			example: {name: "Lars"}
+			application/json:
+				schema: player
+				example: {name: "Lars"}
 		responses:
 			201:
 	/{playerid}:
