@@ -415,7 +415,7 @@ li.L1,li.L3,li.L5,li.L7,li.L9
                 
             </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4></div><ul class="list-group"></ul><ul class="list-group"><li class="list-group-item"><h4>Response</h4></li><li class="list-group-item"><h5>Http Status code <div class="label label-success" style="font-size: 16px;">200</div></h5><div></div></li><li class="list-group-item"><strong>Content-Type:</strong> application/json
             </li><li class="list-group-item"><h6>Example</h6><div style="margin-left: -15px;
-                            margin-right: -15px;"><textarea class="code">{&quot;id&quot;:&quot;/user/mario&quot;,&quot;name&quot;:&quot;Mario&quot;,&quot;uri&quot;:&quot;http://localhost:4567/client/mario&quot;}</textarea></div><h6>Schema</h6><div style="margin-left: -15px;
+                            margin-right: -15px;"><textarea class="code">{&quot;id&quot;:&quot;/users/mario&quot;,&quot;name&quot;:&quot;Mario&quot;,&quot;uri&quot;:&quot;http://localhost:4567/client/mario&quot;}</textarea></div><h6>Schema</h6><div style="margin-left: -15px;
                              margin-right: -15px;"><textarea class="code">{
     &quot;type&quot;: &quot;object&quot;,
     &quot;$schema&quot;: &quot;http://json-schema.org/draft-03/schema&quot;,
@@ -459,7 +459,7 @@ li.L1,li.L3,li.L5,li.L7,li.L9
                             margin-right: -15px;
                         "><h6>Example</h6><pre class="prettyprint"><code>http://localhost:4567/client/mario</code></pre></div></li></ul></div><ul class="list-group"><li class="list-group-item"><strong>Content-Type:</strong> application/json
         </li><li class="list-group-item"><h5>Body</h5></li><li class="list-group-item"><h6>Example</h6><div style="margin-left: -15px;
-                            margin-right: -15px;"><textarea class="code">{&quot;id&quot;:&quot;/user/mario&quot;,&quot;name&quot;:&quot;Mario&quot;,&quot;uri&quot;:&quot;http://localhost:4567/client/mario&quot;}</textarea></div><h6>Schema</h6><div style="margin-left: -15px;
+                            margin-right: -15px;"><textarea class="code">{&quot;id&quot;:&quot;/users/mario&quot;,&quot;name&quot;:&quot;Mario&quot;,&quot;uri&quot;:&quot;http://localhost:4567/client/mario&quot;}</textarea></div><h6>Schema</h6><div style="margin-left: -15px;
                              margin-right: -15px;"><textarea class="code">{
     &quot;type&quot;: &quot;object&quot;,
     &quot;$schema&quot;: &quot;http://json-schema.org/draft-03/schema&quot;,
@@ -1112,7 +1112,9 @@ finished : after an ending criteria is reached, the game is set into the state f
                 
             </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4></div><ul class="list-group"></ul><ul class="list-group"><li class="list-group-item"><h4>Response</h4></li><li class="list-group-item"><h5>Http Status code <div class="label label-success" style="font-size: 16px;">200</div></h5><div></div></li><li class="list-group-item"><strong>Content-Type:</strong> application/json
             </li><li class="list-group-item"><h6>Example</h6><div style="margin-left: -15px;
-                            margin-right: -15px;"><textarea class="code">{&quot;id&quot;:&quot;/games/42/players/mario&quot;, &quot;user&quot;:&quot;/user/mario&quot;,&quot;ready&quot;:false}</textarea></div><h6>Schema</h6><div style="margin-left: -15px;
+                            margin-right: -15px;"><textarea class="code">{&quot;id&quot;:&quot;/games/42/players/mario&quot;, &quot;user&quot;:&quot;/user/mario&quot;,&quot;ready&quot;:false,
+  &quot;pawn&quot;:&quot;/board/21/pawns/mario&quot;, &quot;account&quot;:&quot;/banks/4711/accounts/mario&quot;,
+  &quot;ready&quot;:&quot;/games/42/players/mario/ready&quot; }</textarea></div><h6>Schema</h6><div style="margin-left: -15px;
                              margin-right: -15px;"><textarea class="code">{
     &quot;type&quot;: &quot;object&quot;,
     &quot;$schema&quot;: &quot;http://json-schema.org/draft-03/schema&quot;,
@@ -1155,7 +1157,9 @@ finished : after an ending criteria is reached, the game is set into the state f
                 
             </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4></div><ul class="list-group"><li class="list-group-item"><strong>Content-Type:</strong> application/json
         </li><li class="list-group-item"><h5>Body</h5></li><li class="list-group-item"><h6>Example</h6><div style="margin-left: -15px;
-                            margin-right: -15px;"><textarea class="code">{&quot;id&quot;:&quot;/games/42/players/mario&quot;, &quot;user&quot;:&quot;/user/mario&quot;,&quot;ready&quot;:false}</textarea></div><h6>Schema</h6><div style="margin-left: -15px;
+                            margin-right: -15px;"><textarea class="code">{&quot;id&quot;:&quot;/games/42/players/mario&quot;, &quot;user&quot;:&quot;/user/mario&quot;,&quot;ready&quot;:false,
+  &quot;pawn&quot;:&quot;/board/21/pawns/mario&quot;, &quot;account&quot;:&quot;/banks/4711/accounts/mario&quot;,
+  &quot;ready&quot;:&quot;/games/42/players/mario/ready&quot; }</textarea></div><h6>Schema</h6><div style="margin-left: -15px;
                              margin-right: -15px;"><textarea class="code">{
     &quot;type&quot;: &quot;object&quot;,
     &quot;$schema&quot;: &quot;http://json-schema.org/draft-03/schema&quot;,
@@ -2597,7 +2601,12 @@ finished : after an ending criteria is reached, the game is set into the state f
                 creates a new bank transfer from a account id to an other
 
                 
-            </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4></div><ul class="list-group"><li class="list-group-item"><strong>Content-Type:</strong> application/json
+            </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4><hr/><h5>Query parameters</h5><ul class="list-group"><li  class="list-group-item"><div><span style="font-weight: bold;">transaction</span> (string
+                        )<br/> The uri of the transaction to be added to</div><div style="
+                            margin-top: 10px;
+                            margin-left: -15px;
+                            margin-right: -15px;
+                        "><h6>Example</h6><pre class="prettyprint"><code>/transactions/42</code></pre></div></li></ul></div><ul class="list-group"><li class="list-group-item"><strong>Content-Type:</strong> application/json
         </li><li class="list-group-item"><h5>Body</h5></li><li class="list-group-item"><h6>Example</h6><div style="margin-left: -15px;
                             margin-right: -15px;"><textarea class="code">Rent for Badstrasse</textarea></div><h6>Schema</h6><div style="margin-left: -15px;
                              margin-right: -15px;"><textarea class="code">{
@@ -2681,7 +2690,12 @@ finished : after an ending criteria is reached, the game is set into the state f
                 creates a new bank transfer from the bank itself
 
                 
-            </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4></div><ul class="list-group"><li class="list-group-item"><strong>Content-Type:</strong> application/json
+            </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4><hr/><h5>Query parameters</h5><ul class="list-group"><li  class="list-group-item"><div><span style="font-weight: bold;">transaction</span> (string
+                        )<br/> The uri of the transaction to be added to</div><div style="
+                            margin-top: 10px;
+                            margin-left: -15px;
+                            margin-right: -15px;
+                        "><h6>Example</h6><pre class="prettyprint"><code>/transactions/42</code></pre></div></li></ul></div><ul class="list-group"><li class="list-group-item"><strong>Content-Type:</strong> application/json
         </li><li class="list-group-item"><h5>Body</h5></li><li class="list-group-item"><h6>Example</h6><div style="margin-left: -15px;
                             margin-right: -15px;"><textarea class="code">Starting Money</textarea></div><h6>Schema</h6><div style="margin-left: -15px;
                              margin-right: -15px;"><textarea class="code">{
@@ -2766,7 +2780,12 @@ finished : after an ending criteria is reached, the game is set into the state f
                 creates a new bank transfer to the bank itself
 
                 
-            </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4></div><ul class="list-group"><li class="list-group-item"><strong>Content-Type:</strong> application/json
+            </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4><hr/><h5>Query parameters</h5><ul class="list-group"><li  class="list-group-item"><div><span style="font-weight: bold;">transaction</span> (string
+                        )<br/> The uri of the transaction to be added to</div><div style="
+                            margin-top: 10px;
+                            margin-left: -15px;
+                            margin-right: -15px;
+                        "><h6>Example</h6><pre class="prettyprint"><code>/transactions/42</code></pre></div></li></ul></div><ul class="list-group"><li class="list-group-item"><strong>Content-Type:</strong> application/json
         </li><li class="list-group-item"><h5>Body</h5></li><li class="list-group-item"><h6>Example</h6><div style="margin-left: -15px;
                             margin-right: -15px;"><textarea class="code">Starting Money</textarea></div><h6>Schema</h6><div style="margin-left: -15px;
                              margin-right: -15px;"><textarea class="code">{
@@ -2829,7 +2848,65 @@ finished : after an ending criteria is reached, the game is set into the state f
             }
         }
     }
-}</textarea></div></li><li class="list-group-item"><h5>Http Status code <div class="label label-danger" style="font-size: 16px;">403</div></h5><div>insufficient fonds</div></li></ul></div></div><div id="ec6e24988a79664bb0b88636d9883472">
+}</textarea></div></li><li class="list-group-item"><h5>Http Status code <div class="label label-danger" style="font-size: 16px;">403</div></h5><div>insufficient fonds</div></li></ul></div></div><div id="969fe159b746a27fe30a47193ace879d">
+    URl: /banks/{bankid}/transaction
+    
+    <div onclick="show_description('969fe159b746a27fe30a47193ace879d')" style="position: relative; margin-top: 25px;"><div style="float: right;
+                    position: absolute;
+                    top: -20px;
+                    right: -1px;"><a href="#969fe159b746a27fe30a47193ace879d_desc_POST"><div style="border-radius: 0;" class="label label-success">POST
+                                            </div></a></div><h4 class="link">
+             banks {bankid} transaction
+        </h4></div><hr/></div><div id="969fe159b746a27fe30a47193ace879d_desc" class="desc_resources" style="
+    display: none;
+    position: fixed;
+    width: 50%;
+    height: 100%;
+    right: 0; top: 0;
+    overflow: auto;
+    background-color: #ccc;
+    padding: 10px;"><div class="panel" id="969fe159b746a27fe30a47193ace879d_desc_POST"><div class="panel-heading"><div class="label label-success">POST</div> /banks/{bankid}/transaction
+            </div><div class="panel-body"><strong>Description</strong><br/><br/>
+                begins a new transaction
+
+                
+            </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4><hr/><h5>Query parameters</h5><ul class="list-group"><li  class="list-group-item"><div><span style="font-weight: bold;">phases</span> (string
+                        )<br/> tells if it is a 1- or 2-phase</div></li></ul></div><ul class="list-group"></ul><ul class="list-group"><li class="list-group-item"><h4>Response</h4></li></ul></div></div><div id="1411fc3e8a47e091df279b4d21045b74">
+    URl: /banks/{bankid}/transaction/{tid}
+    
+    <div onclick="show_description('1411fc3e8a47e091df279b4d21045b74')" style="position: relative; margin-top: 25px;"><div style="float: right;
+                    position: absolute;
+                    top: -20px;
+                    right: -1px;"><a href="#1411fc3e8a47e091df279b4d21045b74_desc_GET"><div style="border-radius: 0;" class="label label-primary">GET
+                                            </div></a><a href="#1411fc3e8a47e091df279b4d21045b74_desc_PUT"><div style="border-radius: 0;" class="label label-warning">PUT
+                                            </div></a><a href="#1411fc3e8a47e091df279b4d21045b74_desc_DELETE"><div style="border-radius: 0;" class="label label-danger">DELETE
+                                            </div></a></div><h4 class="link">
+             banks {bankid} transaction {tid}
+        </h4></div><hr/></div><div id="1411fc3e8a47e091df279b4d21045b74_desc" class="desc_resources" style="
+    display: none;
+    position: fixed;
+    width: 50%;
+    height: 100%;
+    right: 0; top: 0;
+    overflow: auto;
+    background-color: #ccc;
+    padding: 10px;"><div class="panel" id="1411fc3e8a47e091df279b4d21045b74_desc_GET"><div class="panel-heading"><div class="label label-primary">GET</div> /banks/{bankid}/transaction/{tid}
+            </div><div class="panel-body"><strong>Description</strong><br/><br/>
+                returns the state of the transaction
+
+                
+            </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4></div><ul class="list-group"></ul><ul class="list-group"><li class="list-group-item"><h4>Response</h4></li></ul></div><div class="panel" id="1411fc3e8a47e091df279b4d21045b74_desc_PUT"><div class="panel-heading"><div class="label label-warning">PUT</div> /banks/{bankid}/transaction/{tid}
+            </div><div class="panel-body"><strong>Description</strong><br/><br/>
+                commits/readies the transaction
+
+                
+            </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4><hr/><h5>Query parameters</h5><ul class="list-group"><li  class="list-group-item"><div><span style="font-weight: bold;">state</span> (string
+                        )<br/> sets the sate of the transaction. Default: commit</div></li></ul></div><ul class="list-group"></ul><ul class="list-group"><li class="list-group-item"><h4>Response</h4></li></ul></div><div class="panel" id="1411fc3e8a47e091df279b4d21045b74_desc_DELETE"><div class="panel-heading"><div class="label label-danger">DELETE</div> /banks/{bankid}/transaction/{tid}
+            </div><div class="panel-body"><strong>Description</strong><br/><br/>
+                abort/rollback an transaction
+
+                
+            </div><div class="panel-body"><h4 style="margin-bottom: 25px;">Request</h4></div><ul class="list-group"></ul><ul class="list-group"><li class="list-group-item"><h4>Response</h4></li></ul></div></div><div id="ec6e24988a79664bb0b88636d9883472">
     URl: /banks/{bankid}/accounts
     
     <div onclick="show_description('ec6e24988a79664bb0b88636d9883472')" style="position: relative; margin-top: 25px;"><div style="float: right;
