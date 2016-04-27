@@ -15,30 +15,26 @@ public class BankManagerWebService {
 	
 	private static final BankManager MANAGER = new BankManager();
 	
-	private static String postKonto(Request request, Response response) {
+	private static String postAccount(Request request, Response response) {
 		String gameId = request.params(":gameId");
 		
-		JSONObject body = new JSONObject(request.body());
-		String player = "/" + body.getString("player");
-		int saldo = body.getInt("saldo");
+		Account account = AccountJsonMarshaller.unmarshall(new JSONObject(request.body()));
+		String player = account.getPlayer();
+		int saldo = account.getSaldo();
 		
-		MANAGER.createKonto(gameId, player.substring(player.lastIndexOf("/")+1), saldo);
+		MANAGER.createAccount(gameId, player.substring(player.lastIndexOf("/")+1), saldo);
 		
 		response.status(201);
 		return "Konto erfolgreich angelegt";
 	}
 	
-	private static String getKonto(Request request, Response response) {
+	private static String getAccount(Request request, Response response) {
 		String gameId = request.params(":gameId");
 		String accountId = request.params(":accountId");
 		
-		Konto konto = MANAGER.getKonto(gameId, accountId);
+		Account account = MANAGER.getAccount(gameId, accountId);
 		
-		JSONObject responseJson = new JSONObject();
-		responseJson.put("player", konto.getId());
-		responseJson.put("saldo", konto.getKontostand());
-		
-		return responseJson.toString();
+		return AccountJsonMarshaller.marshall(account).toString();
 	}
 	
 	private static String postTransferTo(Request request, Response response) {
@@ -48,7 +44,7 @@ public class BankManagerWebService {
 		
 		String reason = request.body();
 		
-		MANAGER.transferTo(gameId, MANAGER.getKonto(gameId, to.substring(to.lastIndexOf("/")+1)), Integer.parseInt(amount), reason);
+		MANAGER.transferTo(gameId, MANAGER.getAccount(gameId, to.substring(to.lastIndexOf("/")+1)), Integer.parseInt(amount), reason);
 		
 		response.status(201);
 		return "Transfer erfolgreich";
@@ -60,7 +56,7 @@ public class BankManagerWebService {
 			String from = "/" + request.params(":from");
 			String amount = request.params(":amount");
 			
-			MANAGER.transferFrom(gameId, MANAGER.getKonto(gameId, from.substring(from.lastIndexOf("/")+1)), Integer.parseInt(amount));
+			MANAGER.transferFrom(gameId, MANAGER.getAccount(gameId, from.substring(from.lastIndexOf("/")+1)), Integer.parseInt(amount));
 			
 			response.status(201);
 			return "Transfer erfolgreich";
@@ -80,7 +76,7 @@ public class BankManagerWebService {
 			String from = "/" + request.params(":from");
 			String amount = request.params(":amount");
 			
-			MANAGER.transferFromTo(gameId, MANAGER.getKonto(gameId, from.substring(from.lastIndexOf("/")+1)), MANAGER.getKonto(gameId, to.substring(to.lastIndexOf("/")+1)), Integer.parseInt(amount));
+			MANAGER.transferFromTo(gameId, MANAGER.getAccount(gameId, from.substring(from.lastIndexOf("/")+1)), MANAGER.getAccount(gameId, to.substring(to.lastIndexOf("/")+1)), Integer.parseInt(amount));
 			
 			response.status(201);
 			return "Transfer erfolgreich";
@@ -101,8 +97,8 @@ public class BankManagerWebService {
 			e.printStackTrace();
 		}
 		
-		post("/banks/:gameId/accounts", BankManagerWebService::postKonto);
-		get("/banks/:gameId/accounts/:accountId", BankManagerWebService::getKonto);
+		post("/banks/:gameId/accounts", BankManagerWebService::postAccount);
+		get("/banks/:gameId/accounts/:accountId", BankManagerWebService::getAccount);
 		post("/banks/:gameId/transfer/to/:to/:amount", BankManagerWebService::postTransferTo);
 		post("/banks/:gameId/transfer/from/:from/:amount", BankManagerWebService::postTransferFrom);
 		post("/banks/:gameId/transfer/from/:from/to/:to/:amount", BankManagerWebService::postTransferFromTo);

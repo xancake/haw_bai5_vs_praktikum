@@ -10,27 +10,27 @@ public class BankManager {
 		_gameIdBankMapping = new HashMap<String, Bank>();
 	}
 	
-	public void createKonto(String gameId, String player, int saldo) {
+	public void createAccount(String gameId, String player, int saldo) {
 		Bank bank = getBankLazily(gameId);
-		bank.erzeugeKonto(player, saldo);
+		bank.erzeugeAccount(player, saldo);
 	}
 	
-	public Konto getKonto(String gameId, String accountId) {
+	public Account getAccount(String gameId, String accountId) {
 		Bank bank = getBankLazily(gameId);
-		return bank.getKonto(accountId);
+		return bank.getAccount(accountId);
 	}
 	
-	public void transferTo(String gameId, Konto to, int amount, String reason) {
+	public void transferTo(String gameId, Account to, int amount, String reason) {
 		Bank bank = getBankLazily(gameId);
 		bank.transferTo(to, amount);
 	}
 	
-	public void transferFrom(String gameId, Konto from, int amount) throws InsufficientFondsException {
+	public void transferFrom(String gameId, Account from, int amount) throws InsufficientFondsException {
 		Bank bank = getBankLazily(gameId);
 		bank.transferFrom(from, amount);
 	}
 	
-	public void transferFromTo(String gameId, Konto from, Konto to, int amount) throws InsufficientFondsException {
+	public void transferFromTo(String gameId, Account from, Account to, int amount) throws InsufficientFondsException {
 		Bank bank = getBankLazily(gameId);
 		bank.transferFromTo(from, to, amount);
 	}

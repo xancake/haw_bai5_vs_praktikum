@@ -3,19 +3,19 @@ package org.haw.vs.praktikum.gwln.praktikum2.b.bank;
 import java.util.Objects;
 
 public class Transaktion {
-	private Konto _konto;
-	private int _menge;
+	private Account _account;
+	private int _amount;
 	
-	public Transaktion(Konto konto, int menge) {
-		_konto = Objects.requireNonNull(konto);
-		_menge = menge;
+	public Transaktion(Account account, int amount) {
+		_account = Objects.requireNonNull(account);
+		_amount = amount;
 	}
 	
-	public Konto getKonto() {
-		return _konto;
+	public Account getAccount() {
+		return _account;
 	}
 	
-	public int getMenge() {
-		return _menge;
+	public int getAmount() {
+		return _amount;
 	}
 }
