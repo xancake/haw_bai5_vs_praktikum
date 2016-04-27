@@ -4,10 +4,7 @@ import java.util.List;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class YellowPagesRegistry {
-	private static final String YELLOW_PAGES_URL = "http://172.18.0.5:4567";
-//	private static final String YELLOW_PAGES_URL = "http://141.22.34.15/cnt/172.18.0.5/4567";
-	
-	private static final YellowPagesRestClient YELLOW_PAGES = new YellowPagesRestClient(YELLOW_PAGES_URL);
+	private static final YellowPagesRestClient YELLOW_PAGES = new YellowPagesRestClient(YellowPagesRestClient.HAW_YELLOW_PAGES_INTERNAL);
 	
 	public static String registerOrUpdateService(String name, String description, String type, String uri) throws YellowPagesNotAvailableException {
 		try {

@@ -11,6 +11,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.game.Game;
@@ -63,6 +64,10 @@ public class RestopolyLobbyUI {
 	
 	public void setGames(List<Game> games) {
 		_gameList.setListData(games.toArray(new Game[0]));
+	}
+	
+	public void showFehlermeldung(String fehlermeldung) {
+		JOptionPane.showMessageDialog(_frame, fehlermeldung, "ERROR", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	public void show(){
