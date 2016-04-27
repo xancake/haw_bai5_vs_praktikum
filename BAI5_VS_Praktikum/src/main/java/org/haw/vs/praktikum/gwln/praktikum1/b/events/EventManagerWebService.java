@@ -1,4 +1,4 @@
-package org.haw.vs.praktikum.gwln.praktikum1.b;
+package org.haw.vs.praktikum.gwln.praktikum1.b.events;
 
 import static spark.Spark.*;
 import java.net.InetAddress;

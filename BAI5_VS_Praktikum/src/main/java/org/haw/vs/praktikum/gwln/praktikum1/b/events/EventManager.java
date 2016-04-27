@@ -1,4 +1,4 @@
-package org.haw.vs.praktikum.gwln.praktikum1.b;
+package org.haw.vs.praktikum.gwln.praktikum1.b.events;
 
 import java.util.ArrayList;
 import java.util.List;
