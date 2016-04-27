@@ -22,16 +22,12 @@ public class GamesRestClient {
 	}
 	
 	public List<Game> getGames() throws UnirestException {
-		HttpResponse<JsonNode> response = Unirest.get(_url + "/games").asJson();
+		HttpResponse<JsonNode> response = Unirest.get(_url).asJson();
 		
 		List<Game> games = new ArrayList<Game>();
 		JSONArray gamesJson = response.getBody().getArray();
 		for(Object gameEntryO : gamesJson) {
 			JSONObject gameJson = (JSONObject)gameEntryO;
-//			String id = gameJson.getString("id");
-//			String name = gameJson.getString("name");
-//			String players = gameJson.getString("players");
-//			JSONObject services = gameJson.getJSONObject("services");
 			
 			Game game = _gson.fromJson(gameJson.toString(), Game.class);
 			games.add(game);
@@ -41,7 +37,7 @@ public class GamesRestClient {
 	}
 	
 	public String getGameStatus(String gameId) throws UnirestException {
-		return Unirest.get(_url+gameId+"/status").asString().getBody();
+		return Unirest.get(_url + gameId + "/status").asString().getBody();
 	}
 	
 	public void registerPlayer(String gameId, String user, String pawn, String account, String ready) throws UnirestException {

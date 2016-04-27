@@ -3,6 +3,7 @@ package org.haw.vs.praktikum.gwln.praktikum2.b.client.ui.lobby;
 import java.util.List;
 import org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.game.Game;
 import org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.game.GamesRestClient;
+import org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.user.UserRestClient;
 import org.haw.vs.praktikum.gwln.praktikum2.b.client.ui.game.RestopolyGameController;
 import org.haw.vs.praktikum.gwln.yellowpages.Service;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesRestClient;
@@ -32,10 +33,11 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 	
 	public void start() {
 		try {
-			List<Game>games = _gamesClient.getGames();
+			List<Game> games = _gamesClient.getGames();
 			games.removeIf((game) -> {
 				try {
-					return !"registration".equals(_gamesClient.getGameStatus(game.getId()));
+					String gameStatus = _gamesClient.getGameStatus(game.getId().substring("/games".length()));
+					return !"registration".equals(gameStatus);
 				} catch(UnirestException e) {
 					e.printStackTrace();
 					return false;
@@ -52,9 +54,13 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 	
 	@Override
 	public void onBeitreten(Game game) {
-		String user = "user";
 		try {
-			_gamesClient.registerPlayer(game.getId(), user, "pawn", "account", "false");
+			String username = "";
+			
+			UserRestClient userClient = new UserRestClient(game.getServices().get("users").getAsString());
+			String user = userClient.registerUser(username);
+			
+			_gamesClient.registerPlayer(game.getId().substring("/games".length()), user, "pawn", "account", "false");
 			_ui.hide();
 			
 			RestopolyGameController gameController = new RestopolyGameController(game);

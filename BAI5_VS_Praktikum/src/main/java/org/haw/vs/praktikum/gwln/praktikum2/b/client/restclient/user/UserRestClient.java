@@ -29,7 +29,7 @@ public class UserRestClient {
 			
 			json.put("uri", url);
 			
-			HttpResponse<String> response = Unirest.post(_url + "/users")
+			HttpResponse<String> response = Unirest.post(_url)
 					.header("Content-Type", "application/json")
 					.body(json)
 					.asString();
