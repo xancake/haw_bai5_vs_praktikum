@@ -2,7 +2,9 @@ package org.haw.vs.praktikum.gwln.praktikum1.b;
 
 import org.json.JSONObject;
 
-public class JsonEventMarshaller {
+public class EventJsonMarshaller {
+	private EventJsonMarshaller() {}
+	
 	public static JSONObject marshall(Event event) {
 		JSONObject json = new JSONObject();
 		json.put("id", event.getId());

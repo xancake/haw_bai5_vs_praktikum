@@ -17,13 +17,13 @@ public class EventManagerRestClient {
 	public void postEvent(Event event) throws UnirestException {
 		Unirest.post(_url + "/events")
 				.header("Content-Type", "application/json")
-				.body(JsonEventMarshaller.marshall(event))
+				.body(EventJsonMarshaller.marshall(event))
 				.asString();
 	}
 	
 	public Event getEvent(String id) throws UnirestException {
 		HttpResponse<JsonNode> response = Unirest.get(_url + "/events/" + id).asJson();
-		return JsonEventMarshaller.unmarshall(response.getBody().getObject());
+		return EventJsonMarshaller.unmarshall(response.getBody().getObject());
 	}
 	
 	@SuppressWarnings("unchecked")

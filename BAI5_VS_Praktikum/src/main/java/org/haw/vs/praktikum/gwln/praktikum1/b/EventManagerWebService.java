@@ -21,7 +21,7 @@ public class EventManagerWebService {
 	private static int EVENT_COUNTER = 0;
 	
 	private static String postEvent(Request request, Response response) {
-		Event requestEvent = JsonEventMarshaller.unmarshall(new JSONObject(request.body()));
+		Event requestEvent = EventJsonMarshaller.unmarshall(new JSONObject(request.body()));
 		
 		Event event = new Event(
 				String.valueOf(++EVENT_COUNTER),
@@ -75,7 +75,7 @@ public class EventManagerWebService {
 			response.status(404);
 			return null;
 		}
-		return JsonEventMarshaller.marshall(event).toString();
+		return EventJsonMarshaller.marshall(event).toString();
 	}
 	
 	public static void main(String[] args) throws UnknownHostException {
