@@ -91,7 +91,7 @@ public class BankManagerWebService {
 	
 	public static void main(String... args) throws Exception {
 		try {
-			String uri = "http://"+ InetAddress.getLocalHost().getHostAddress() + ":4567/banks";
+			String uri = "http://" + InetAddress.getLocalHost().getHostAddress() + ":4567/banks";
 			YellowPagesRegistry.registerOrUpdateService(NAME, DESCRIPTION, SERVICE, uri);
 		} catch(YellowPagesNotAvailableException e) {
 			e.printStackTrace();

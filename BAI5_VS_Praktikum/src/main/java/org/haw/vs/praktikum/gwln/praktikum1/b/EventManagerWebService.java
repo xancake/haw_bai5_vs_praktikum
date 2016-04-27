@@ -80,7 +80,7 @@ public class EventManagerWebService {
 	
 	public static void main(String[] args) throws UnknownHostException {
 		try {
-			String uri = "http://"+ InetAddress.getLocalHost().getHostAddress() + ":4567/events";
+			String uri = "http://" + InetAddress.getLocalHost().getHostAddress() + ":4567/events";
 			YellowPagesRegistry.registerOrUpdateService(NAME, DESCRIPTION, SERVICE, uri);
 		} catch(YellowPagesNotAvailableException e) {
 			e.printStackTrace();
