@@ -1,47 +1,48 @@
 package org.haw.vs.praktikum.gwln.praktikum1.b.events;
 
 import java.util.List;
+
+import org.haw.vs.praktikum.gwln.rest.client.AbstractRestClient;
+
 import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-public class EventManagerRestClient {
-	private static final String ENDPOINT = "/events";
-	
-	private String _url; // Die Adresse muss "/events" beinhalten
+public class EventManagerRestClient extends AbstractRestClient {
+	private EventJsonMarshaller _marshaller;
 	
 	/**
 	 * 
 	 * @param url Die URL des "/events"-Services
 	 */
 	public EventManagerRestClient(String url) {
-		_url = url.endsWith(ENDPOINT) ? url : url + ENDPOINT;
+		super(url, "/events");
+		_marshaller = new EventJsonMarshaller();
 	}
 	
 	public void postEvent(Event event) throws UnirestException {
-		Unirest.post(_url)
+		Unirest.post(getUrl())
 				.header("Content-Type", "application/json")
-				.body(EventJsonMarshaller.marshall(event))
+				.body(_marshaller.marshall(event))
 				.asString();
 	}
 	
 	public Event getEvent(String id) throws UnirestException {
-		HttpResponse<JsonNode> response = Unirest.get(_url + "/" + id).asJson();
-		return EventJsonMarshaller.unmarshall(response.getBody().getObject());
+		HttpResponse<String> response = Unirest.get(getUrl() + "/" + id).asString();
+		return _marshaller.unmarshall(response.getBody());
 	}
 	
 	@SuppressWarnings("unchecked")
 	public List<Event> getEvents(String game, String type, String name, String reason, String resource, String player) throws UnirestException {
 		String parameters = createParameterString(game, type, name, reason, resource, player);
-		HttpResponse<String> response = Unirest.get(_url + parameters).asString();
+		HttpResponse<String> response = Unirest.get(getUrl() + parameters).asString();
 		return (List<Event>)new Gson().fromJson(response.getBody(), List.class);
 	}
 	
 	public void deleteEvents(String game, String type, String name, String reason, String resource, String player) throws UnirestException {
 		String parameters = createParameterString(game, type, name, reason, resource, player);
-		Unirest.delete(_url + parameters).asString();
+		Unirest.delete(getUrl() + parameters).asString();
 	}
 	
 	private String createParameterString(String game, String type, String name, String reason, String resource, String player) {

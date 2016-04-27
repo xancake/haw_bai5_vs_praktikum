@@ -1,27 +1,34 @@
 package org.haw.vs.praktikum.gwln.praktikum1.b.events;
 
-import static spark.Spark.*;
+import static spark.Spark.delete;
+import static spark.Spark.get;
+import static spark.Spark.post;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesNotAvailableException;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesRegistry;
-import org.json.JSONObject;
+
+import com.google.gson.Gson;
+
 import spark.Request;
 import spark.Response;
-import com.google.gson.Gson;
 
 public class EventManagerWebService {
 	private static final String NAME = "Event Manager Service 42_1337_69";
 	private static final String DESCRIPTION = "Bester Event Manager 42_1337_69";
 	private static final String SERVICE = "Event Manager Service";
 	
-	private static final EventManager MANAGER = new EventManager();
 	private static String URI;
+	private static final EventJsonMarshaller MARSHALLER = new EventJsonMarshaller();
+	
+	private static final EventManager MANAGER = new EventManager();
 	private static int EVENT_COUNTER = 0;
 	
 	private static String postEvent(Request request, Response response) {
-		Event requestEvent = EventJsonMarshaller.unmarshall(new JSONObject(request.body()));
+		Event requestEvent = MARSHALLER.unmarshall(request.body());
 		
 		Event event = new Event(
 				String.valueOf(++EVENT_COUNTER),
@@ -76,7 +83,7 @@ public class EventManagerWebService {
 			response.status(404);
 			return null;
 		}
-		return EventJsonMarshaller.marshall(event).toString();
+		return MARSHALLER.marshall(event);
 	}
 	
 	public static void main(String[] args) throws UnknownHostException {

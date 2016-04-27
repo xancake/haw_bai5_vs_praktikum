@@ -3,19 +3,16 @@ package org.haw.vs.praktikum.gwln.praktikum2.b.client.restclient.user;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.haw.vs.praktikum.gwln.rest.client.AbstractRestClient;
 import org.json.JSONObject;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-public class UserRestClient {
-	private static final String ENDPOINT = "/users";
-	
-	private String _url;
-	
+public class UserRestClient extends AbstractRestClient {
 	public UserRestClient(String url) {
-		_url = url.endsWith(ENDPOINT) ? url : url + ENDPOINT;
+		super(url, "/users");
 	}
 	
 	public String registerUser(String username) throws UnirestException{
@@ -29,7 +26,7 @@ public class UserRestClient {
 			
 			json.put("uri", url);
 			
-			HttpResponse<String> response = Unirest.post(_url)
+			HttpResponse<String> response = Unirest.post(getUrl())
 					.header("Content-Type", "application/json")
 					.body(json)
 					.asString();

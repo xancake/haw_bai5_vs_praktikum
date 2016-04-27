@@ -2,6 +2,8 @@ package org.haw.vs.praktikum.gwln.yellowpages;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.haw.vs.praktikum.gwln.rest.client.AbstractRestClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import com.mashape.unirest.http.HttpResponse;
@@ -12,19 +14,19 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 /**
  * Client für den Yellow-Pages Web-Service von Andrej.
  */
-public class YellowPagesRestClient {
+public class YellowPagesRestClient extends AbstractRestClient {
 	public static final String HAW_YELLOW_PAGES_INTERNAL = "http://172.18.0.5:4567";
 	public static final String HAW_YELLOW_PAGES_EXTERNAL = "http://141.22.34.15/cnt/172.18.0.5/4567";
-	private static final String ENDPOINT = "/services";
 	
-	private String _url;
+	private ServiceJsonMarshaller _marshaller;
 	
 	/**
 	 * Die URL, auf der sich der Yellow-Pages Web-Service befindet.
 	 * @param url Die URL des Yellow-Pages
 	 */
 	public YellowPagesRestClient(String url) {
-		_url = url.endsWith(ENDPOINT) ? url : url + ENDPOINT;
+		super(url, "/services");
+		_marshaller = new ServiceJsonMarshaller();
 	}
 	
 	/**
@@ -36,12 +38,12 @@ public class YellowPagesRestClient {
 	public List<Service> getServices() throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<JsonNode> response = Unirest.get(_url + "?expanded").asJson();
+		HttpResponse<JsonNode> response = Unirest.get(getUrl() + "?expanded").asJson();
 		JSONObject responseJson = response.getBody().getObject();
 		JSONArray servicesJson = responseJson.getJSONArray("services");
 		for(Object jsonEntry : servicesJson) {
 			JSONObject serviceJson = (JSONObject)jsonEntry;
-			services.add(unmarshall(serviceJson));
+			services.add(_marshaller.unmarshall(serviceJson.toString()));
 		}
 		
 		return services;
@@ -55,9 +57,9 @@ public class YellowPagesRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public String postService(Service service) throws UnirestException {
-		HttpResponse<String> response = Unirest.post(_url)
+		HttpResponse<String> response = Unirest.post(getUrl())
 				.header("Content-Type", "application/json")
-				.body(marshall(service))
+				.body(_marshaller.marshall(service))
 				.asString();
 		return response.getHeaders().getFirst("Location");
 	}
@@ -70,11 +72,11 @@ public class YellowPagesRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public Service getService(String id) throws UnirestException {
-		HttpResponse<JsonNode> response = Unirest.post(_url + "/" + id + "?expanded").asJson();
+		HttpResponse<String> response = Unirest.post(getUrl() + "/" + id + "?expanded").asString();
 		if(response.getStatus() == 404) {
 			return null;
 		}
-		return unmarshall(response.getBody().getObject());
+		return _marshaller.unmarshall(response.getBody());
 	}
 	
 	/**
@@ -85,9 +87,9 @@ public class YellowPagesRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public void putService(String id, Service service) throws UnirestException {
-		Unirest.put(_url + "/" + id)
+		Unirest.put(getUrl() + "/" + id)
 				.header("Content-Type", "application/json")
-				.body(marshall(service))
+				.body(_marshaller.marshall(service))
 				.asString();
 	}
 	
@@ -98,7 +100,7 @@ public class YellowPagesRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public void deleteService(String id) throws UnirestException {
-		Unirest.delete(_url + "/" + id).asString();
+		Unirest.delete(getUrl() + "/" + id).asString();
 	}
 	
 	/**
@@ -111,12 +113,12 @@ public class YellowPagesRestClient {
 	public List<Service> getServicesOfName(String name) throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<JsonNode> response = Unirest.get(_url + "/of/name/" + name + "?expanded").asJson();
+		HttpResponse<JsonNode> response = Unirest.get(getUrl() + "/of/name/" + name + "?expanded").asJson();
 		JSONObject responseJson = response.getBody().getObject();
 		JSONArray servicesJson = responseJson.getJSONArray("services");
 		for(Object jsonEntry : servicesJson) {
 			JSONObject serviceJson = (JSONObject)jsonEntry;
-			services.add(unmarshall(serviceJson));
+			services.add(_marshaller.unmarshall(serviceJson.toString()));
 		}
 		
 		return services;
@@ -132,43 +134,14 @@ public class YellowPagesRestClient {
 	public List<Service> getServicesOfType(String type) throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<JsonNode> response = Unirest.get(_url + "/of/type/" + type + "?expanded").asJson();
+		HttpResponse<JsonNode> response = Unirest.get(getUrl() + "/of/type/" + type + "?expanded").asJson();
 		JSONObject responseJson = response.getBody().getObject();
 		JSONArray servicesJson = responseJson.getJSONArray("services");
 		for(Object jsonEntry : servicesJson) {
 			JSONObject serviceJson = (JSONObject)jsonEntry;
-			services.add(unmarshall(serviceJson));
+			services.add(_marshaller.unmarshall(serviceJson.toString()));
 		}
 		
 		return services;
-	}
-	
-	/**
-	 * Verpackt den übergebenen {@link Service} in ein {@link JSONObject}.
-	 * @param service Der zu verpackende Service
-	 * @return Die JSON-Repräsentation des Objekts
-	 */
-	private static JSONObject marshall(Service service) {
-		JSONObject json = new JSONObject();
-		json.put("name",        service.getName());
-		json.put("service",     service.getService());
-		json.put("uri",         service.getUri());
-		json.put("description", service.getDescription());
-		return json;
-	}
-	
-	/**
-	 * Entpackt ein {@link Service}-Objekt aus dem übergebenen {@link JSONObject}.
-	 * @param json Das zu entpackende JSON
-	 * @return Der entpackte Service
-	 */
-	private Service unmarshall(JSONObject json) {
-		String id          = json.getString("_uri").replace("/services/", "");
-		String name        = json.getString("name");
-		String service     = json.getString("service");
-		String uri         = json.getString("uri");
-		String status      = json.optString("status");
-		String description = json.optString("description");
-		return new Service(id, name, service, uri, status, description);
 	}
 }

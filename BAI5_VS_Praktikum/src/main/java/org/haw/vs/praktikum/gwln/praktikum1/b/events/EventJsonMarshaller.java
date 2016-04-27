@@ -3,9 +3,7 @@ package org.haw.vs.praktikum.gwln.praktikum1.b.events;
 import org.json.JSONObject;
 
 public class EventJsonMarshaller {
-	private EventJsonMarshaller() {}
-	
-	public static JSONObject marshall(Event event) {
+	public String marshall(Event event) {
 		JSONObject json = new JSONObject();
 		json.put("id", event.getId());
 		json.put("game", event.getGame());
@@ -15,10 +13,11 @@ public class EventJsonMarshaller {
 		json.put("resource", event.getResource());
 		json.put("player", event.getPlayer());
 		json.put("time", event.getTime());
-		return json;
+		return json.toString();
 	}
 	
-	public static Event unmarshall(JSONObject json) {
+	public Event unmarshall(String source) {
+		JSONObject json = new JSONObject(source);
 		String id = json.optString("id");
 		String game = json.getString("game");
 		String type = json.getString("type");

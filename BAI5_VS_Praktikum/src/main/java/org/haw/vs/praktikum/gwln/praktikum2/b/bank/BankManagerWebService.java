@@ -4,7 +4,6 @@ import static spark.Spark.*;
 import java.net.InetAddress;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesNotAvailableException;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesRegistry;
-import org.json.JSONObject;
 import spark.Request;
 import spark.Response;
 
@@ -13,13 +12,15 @@ public class BankManagerWebService {
 	private static final String DESCRIPTION = "Bester Bank Service 42_1337_69";
 	private static final String SERVICE = "Bank Service";
 	
-	private static final BankManager MANAGER = new BankManager();
 	private static String URI;
+	private static AccountJsonMarshaller MARSHALLER = new AccountJsonMarshaller();
+	
+	private static final BankManager MANAGER = new BankManager();
 	
 	private static String postAccount(Request request, Response response) {
 		String gameId = request.params(":gameId");
 		
-		Account account = AccountJsonMarshaller.unmarshall(new JSONObject(request.body()));
+		Account account = MARSHALLER.unmarshall(request.body());
 		MANAGER.createAccount(gameId, account);
 		
 		response.header("Location", URI + "/banks/" + gameId + "/accounts/" + account.getId());
@@ -33,7 +34,7 @@ public class BankManagerWebService {
 		
 		Account account = MANAGER.getAccount(gameId, accountId);
 		
-		return AccountJsonMarshaller.marshall(account).toString();
+		return MARSHALLER.marshall(account);
 	}
 	
 	private static String postTransferTo(Request request, Response response) {
