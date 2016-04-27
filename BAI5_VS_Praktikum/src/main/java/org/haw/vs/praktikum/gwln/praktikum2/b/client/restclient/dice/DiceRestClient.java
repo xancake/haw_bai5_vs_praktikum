@@ -4,13 +4,15 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class DiceRestClient {
-	private String _uri;
+	private static final String ENDPOINT = "/dice";
 	
-	public DiceRestClient(String uri){
-		_uri = uri;
+	private String _url;
+	
+	public DiceRestClient(String url) {
+		_url = url.endsWith(ENDPOINT) ? url : url + ENDPOINT;
 	}
 	
-	public String rollDice() throws UnirestException{
-		return Unirest.get(_uri).asString().getBody();
+	public String rollDice() throws UnirestException {
+		return Unirest.get(_url).asString().getBody();
 	}
 }

@@ -15,6 +15,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 public class YellowPagesRestClient {
 	public static final String HAW_YELLOW_PAGES_INTERNAL = "http://172.18.0.5:4567";
 	public static final String HAW_YELLOW_PAGES_EXTERNAL = "http://141.22.34.15/cnt/172.18.0.5/4567";
+	private static final String ENDPOINT = "/services";
 	
 	private String _url;
 	
@@ -23,7 +24,7 @@ public class YellowPagesRestClient {
 	 * @param url Die URL des Yellow-Pages
 	 */
 	public YellowPagesRestClient(String url) {
-		_url = url;
+		_url = url.endsWith(ENDPOINT) ? url : url + ENDPOINT;
 	}
 	
 	/**
@@ -35,7 +36,7 @@ public class YellowPagesRestClient {
 	public List<Service> getServices() throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<JsonNode> response = Unirest.get(_url + "/services?expanded").asJson();
+		HttpResponse<JsonNode> response = Unirest.get(_url + "?expanded").asJson();
 		JSONObject responseJson = response.getBody().getObject();
 		JSONArray servicesJson = responseJson.getJSONArray("services");
 		for(Object jsonEntry : servicesJson) {
@@ -54,7 +55,7 @@ public class YellowPagesRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public String postService(Service service) throws UnirestException {
-		HttpResponse<String> response = Unirest.post(_url + "/services")
+		HttpResponse<String> response = Unirest.post(_url)
 				.header("Content-Type", "application/json")
 				.body(marshall(service))
 				.asString();
@@ -69,7 +70,7 @@ public class YellowPagesRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public Service getService(String id) throws UnirestException {
-		HttpResponse<JsonNode> response = Unirest.post(_url + "/services/" + id + "?expanded").asJson();
+		HttpResponse<JsonNode> response = Unirest.post(_url + "/" + id + "?expanded").asJson();
 		if(response.getStatus() == 404) {
 			return null;
 		}
@@ -84,7 +85,7 @@ public class YellowPagesRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public void putService(String id, Service service) throws UnirestException {
-		Unirest.put(_url + "/services/" + id)
+		Unirest.put(_url + "/" + id)
 				.header("Content-Type", "application/json")
 				.body(marshall(service))
 				.asString();
@@ -97,7 +98,7 @@ public class YellowPagesRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public void deleteService(String id) throws UnirestException {
-		Unirest.delete(_url + "/services/" + id).asString();
+		Unirest.delete(_url + "/" + id).asString();
 	}
 	
 	/**
@@ -110,7 +111,7 @@ public class YellowPagesRestClient {
 	public List<Service> getServicesOfName(String name) throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<JsonNode> response = Unirest.get(_url + "/services/of/name/" + name + "?expanded").asJson();
+		HttpResponse<JsonNode> response = Unirest.get(_url + "/of/name/" + name + "?expanded").asJson();
 		JSONObject responseJson = response.getBody().getObject();
 		JSONArray servicesJson = responseJson.getJSONArray("services");
 		for(Object jsonEntry : servicesJson) {
@@ -131,7 +132,7 @@ public class YellowPagesRestClient {
 	public List<Service> getServicesOfType(String type) throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<JsonNode> response = Unirest.get(_url + "/services/of/type/" + type + "?expanded").asJson();
+		HttpResponse<JsonNode> response = Unirest.get(_url + "/of/type/" + type + "?expanded").asJson();
 		JSONObject responseJson = response.getBody().getObject();
 		JSONArray servicesJson = responseJson.getJSONArray("services");
 		for(Object jsonEntry : servicesJson) {

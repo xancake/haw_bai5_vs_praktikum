@@ -11,12 +11,14 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class GamesRestClient {
+	private static final String ENDPOINT = "/games";
+	
 	private Gson _gson;
 	private String _url;
 	
 	public GamesRestClient(String url) {
 		_gson = new Gson();
-		_url = url;
+		_url = url.endsWith(ENDPOINT) ? url : url + ENDPOINT;
 	}
 	
 	public List<Game> getGames() throws UnirestException {

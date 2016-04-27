@@ -8,6 +8,8 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class EventManagerRestClient {
+	private static final String ENDPOINT = "/events";
+	
 	private String _url; // Die Adresse muss "/events" beinhalten
 	
 	/**
@@ -15,7 +17,7 @@ public class EventManagerRestClient {
 	 * @param url Die URL des "/events"-Services
 	 */
 	public EventManagerRestClient(String url) {
-		_url = url.endsWith("/events") ? url : url + "/events";
+		_url = url.endsWith(ENDPOINT) ? url : url + ENDPOINT;
 	}
 	
 	public void postEvent(Event event) throws UnirestException {
