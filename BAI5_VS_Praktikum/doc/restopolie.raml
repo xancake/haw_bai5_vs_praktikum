@@ -751,13 +751,13 @@ traits:
         application/json:
           schema: game
           example:
-  /places:
-    type: { list: { schema: "estate", "example":"" } }
-    /{placeid}:
-      type: {item: { schema: "estate", "example":""} }
-      put:
-        description: Registers the place with the broker, won't change anything if already registered
-        responses:
+    /places:
+      type: { list: { schema: "estate", "example":"" } }
+      /{placeid}:
+        type: {item: { schema: "estate", "example":""} }
+        put:
+          description: Registers the place with the broker, won't change anything if already registered
+          responses:
            200:
              description: Place is already present, nothing changed
              body:
@@ -827,13 +827,27 @@ traits:
         application/json:
           schema: "events"
 /events:
-    type: { collection: { schema: "event", "getexample":"", "postexample":"{ 'game':'/games/42' 'type':'payment', 'name':'NoBody has payed SomebBody','reason':'Visit on Badstrasse, paying rent', 'resource':'/banks/21/transfers/4711','player':'/games/42/players/NoBody'}" } }
+    type: { collection: { schema: "event", "getexample":"", "postexample":"" } }
     post:
       description: adds a new event to the collection of events
     get:
       description: returns all matching events according to query parameters
+      queryParameters:
+        game: {"description":"a regex matching for game uri"}
+        type: {"description":"a regex matching for event type"}
+        name: {"description":"a regex matching for the readable name"}
+        reason: {"description":"a regex matching for the reason"}
+        resource: {"description":"a regex matching for the uri referenced by this event"}
+        player: {"description":"a regex matching for the player uri issuing the event"}
     delete:
       description: removes all matching events
+      queryParameters:
+        game: {"description":"a regex matching for game uri"}
+        type: {"description":"a regex matching for event type"}
+        name: {"description":"a regex matching for the readable name"}
+        reason: {"description":"a regex matching for the reason"}
+        resource: {"description":"a regex matching for the uri referenced by this event"}
+        player: {"description":"a regex matching for the player uri issuing the event"}
     /{eventid}:
       get:
         description: gets the event details
