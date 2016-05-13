@@ -3,16 +3,17 @@ package org.haw.vs.praktikum.gwln.praktikum1.b.events;
 import static spark.Spark.delete;
 import static spark.Spark.get;
 import static spark.Spark.post;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.HttpStatus;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesNotAvailableException;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesRegistry;
-
+import org.json.JSONObject;
 import com.google.gson.Gson;
-
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import spark.Request;
 import spark.Response;
 
@@ -22,13 +23,15 @@ public class EventManagerWebService {
 	private static final String SERVICE = "Event Manager Service";
 	
 	private static String URI;
-	private static final EventJsonMarshaller MARSHALLER = new EventJsonMarshaller();
+	private static final EventJsonMarshaller EVENT_MARSHALLER = new EventJsonMarshaller();
+	private static final SubscriptionJsonMarshaller SUBSCRIPTION_MARSHALLER = new SubscriptionJsonMarshaller();
 	
 	private static final EventManager MANAGER = new EventManager();
 	private static int EVENT_COUNTER = 0;
+	private static int SUBSCRIPTION_COUNTER = 0;
 	
 	private static String postEvent(Request request, Response response) {
-		Event requestEvent = MARSHALLER.unmarshall(request.body());
+		Event requestEvent = EVENT_MARSHALLER.unmarshall(request.body());
 		
 		Event event = new Event(
 				String.valueOf(++EVENT_COUNTER),
@@ -41,6 +44,24 @@ public class EventManagerWebService {
 				requestEvent.getTime()
 		);
 		MANAGER.addEvent(event);
+		
+		MANAGER.getSubscriptions().forEach(subscription -> {
+			Event prototypeEvent = subscription.getPrototypeEvent();
+			if(prototypeEvent.matches(event)) {
+				new Thread(() -> {
+					try {
+						Unirest.post(subscription.getCallUri())
+								.header(HttpHeader.CONTENT_TYPE.asString(), "appliction/json")
+								.body(EVENT_MARSHALLER.marshall(event))
+								.asString();
+					} catch(UnirestException e) {
+						// Subscription entfernen, wenn sie nicht mehr funktioniert (aufrufbar ist)
+						MANAGER.removeSubscription(subscription.getId());
+						System.out.println("[EVENTS] Tote Subscription (" + subscription.getId() + ") von '" + subscription.getCallUri() +"' entfernt.");
+					}
+				}).start();
+			}
+		});
 		
 		response.header("Location", URI + "/events/" + event.getId());
 		response.status(201);
@@ -83,7 +104,41 @@ public class EventManagerWebService {
 			response.status(404);
 			return null;
 		}
-		return MARSHALLER.marshall(event);
+		return EVENT_MARSHALLER.marshall(event);
+	}
+	
+	private static String getSubscriptions(Request request, Response response) {
+		List<Subscription> subscriptions = MANAGER.getSubscriptions();
+		
+		return SUBSCRIPTION_MARSHALLER.marshall(subscriptions);
+	}
+	
+	private static String postSubscription(Request request, Response response) {
+		JSONObject json = new JSONObject(request.body());
+		String game = json.getString("game");
+		String callUri = json.getString("uri");
+		Event prototypeEvent = EVENT_MARSHALLER.unmarshall(json.getString("event"));
+		
+		Subscription subscription = new Subscription(SUBSCRIPTION_COUNTER++, URI + "/events/subscriptions/", game, callUri, prototypeEvent);
+		MANAGER.addSubscription(subscription);
+		
+		response.status(HttpStatus.CREATED_201);
+		response.header(HttpHeader.LOCATION.asString(), subscription.getUri());
+		return "Subscription eingetragen";
+	}
+	
+	private static String deleteSubscription(Request request, Response response) {
+		try {
+			String subscriptionId = request.params(":subscriptionId");
+			
+			MANAGER.removeSubscription(Integer.parseInt(subscriptionId));
+			
+			response.status(HttpStatus.NO_CONTENT_204);
+			return "Subscription ausgetragen";
+		} catch(Exception e) {
+			response.status(HttpStatus.PRECONDITION_FAILED_412);
+			return e.getMessage();
+		}
 	}
 	
 	public static void main(String[] args) throws UnknownHostException {
@@ -98,5 +153,8 @@ public class EventManagerWebService {
 		get("/events", EventManagerWebService::getEvents);
 		delete("/events", EventManagerWebService::deleteEvents);
 		get("/events/:eventid", EventManagerWebService::getEvent);
+		get("/events/subscriptions", EventManagerWebService::getSubscriptions);
+		post("/events/subscriptions", EventManagerWebService::postSubscription);
+		delete("/events/subscriptions/:subscriptionId", EventManagerWebService::deleteSubscription);
 	}
 }

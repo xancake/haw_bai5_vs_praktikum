@@ -1,6 +1,7 @@
 package org.haw.vs.praktikum.gwln.praktikum1.b.events;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class Event {
 	private String id,game,type,name,reason,resource,player,time;
@@ -71,5 +72,14 @@ public class Event {
 
 	public String getTime() {
 		return time;
+	}
+	
+	public boolean matches(Event other) {
+		return (game == null     || Pattern.matches(game,     other.getGame()))
+			&& (type == null     || Pattern.matches(type,     other.getType()))
+			&& (name == null     || Pattern.matches(name,     other.getName()))
+			&& (reason == null   || Pattern.matches(reason,   other.getReason()))
+			&& (resource == null || Pattern.matches(resource, other.getResource()))
+			&& (player == null   || Pattern.matches(player,   other.getPlayer()));
 	}
 }
