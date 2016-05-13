@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.eclipse.jetty.http.HttpHeader;
 import org.haw.vs.praktikum.gwln.events.Event;
-import org.haw.vs.praktikum.gwln.events.Subscription;
 import org.haw.vs.praktikum.gwln.events.rest.EventJsonMarshaller;
 import org.haw.vs.praktikum.gwln.rest.client.AbstractRestClient;
 import org.json.JSONArray;
