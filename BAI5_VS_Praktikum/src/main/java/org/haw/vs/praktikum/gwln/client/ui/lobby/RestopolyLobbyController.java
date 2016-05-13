@@ -55,6 +55,7 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 	@Override
 	public void onBeitreten(Game game) {
 		try {
+			//TODO: username eingabe
 			String username = "";
 			
 			UserRestClient userClient = new UserRestClient(game.getServices().get("users").getAsString());
