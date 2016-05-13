@@ -146,6 +146,7 @@ public class BankManagerWebService {
 			
 			List<Transfer> transfers = MANAGER.getBank(Integer.parseInt(bankId)).getTransfers();
 			
+			// TODO: Es sollen garnicht die Transfer-Objekte zurückgegeben werden, sondern nur die URLs
 			return TRANSFER_MARSHALLER.marshall(transfers);
 		} catch(Exception e) {
 			response.status(HttpStatus.PRECONDITION_FAILED_412);
