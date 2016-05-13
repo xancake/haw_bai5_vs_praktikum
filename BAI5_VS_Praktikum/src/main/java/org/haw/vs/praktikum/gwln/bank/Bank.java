@@ -7,17 +7,29 @@ import java.util.List;
 import java.util.Map;
 
 public class Bank {
+	private int _id;
+	private String _game;
 	private Account _bankAccount;
 	private Map<String, Account> _playerAccountMapping;
 	private List<Transfer> _transfers;
 	private Map<Integer, Transaction> _transaktionen;
 	
-	public Bank() {
+	public Bank(int id, String game) {
+		_id = id;
+		_game = game;
 		_bankAccount = new BankAccount();
 		_playerAccountMapping = new HashMap<String, Account>();
 		addAccount(_bankAccount);
 		_transfers = new ArrayList<>();
 		_transaktionen = new HashMap<Integer, Transaction>();
+	}
+	
+	public int getId() {
+		return _id;
+	}
+	
+	public String getGame() {
+		return _game;
 	}
 	
 	public void addAccount(Account account) {
