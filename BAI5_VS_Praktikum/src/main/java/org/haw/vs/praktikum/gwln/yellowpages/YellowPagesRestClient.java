@@ -19,13 +19,21 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	public static final String HAW_YELLOW_PAGES_EXTERNAL = "http://141.22.34.15/cnt/172.18.0.5/4567";
 	
 	private ServiceJsonMarshaller _marshaller;
+	private String _username;
+	private String _passwort;
 	
 	/**
 	 * Die URL, auf der sich der Yellow-Pages Web-Service befindet.
 	 * @param url Die URL des Yellow-Pages
 	 */
 	public YellowPagesRestClient(String url) {
+		this(url, "", "");
+	}
+	
+	public YellowPagesRestClient(String url, String username, String password) {
 		super(url, "/services");
+		_username = username;
+		_passwort = password;
 		_marshaller = new ServiceJsonMarshaller();
 	}
 	
@@ -38,7 +46,9 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	public List<Service> getServices() throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<JsonNode> response = Unirest.get(getUrl() + "?expanded").asJson();
+		HttpResponse<JsonNode> response = Unirest.get(getUrl() + "?expanded")
+				.basicAuth(_username, _passwort)
+				.asJson();
 		JSONObject responseJson = response.getBody().getObject();
 		JSONArray servicesJson = responseJson.getJSONArray("services");
 		for(Object jsonEntry : servicesJson) {
@@ -58,6 +68,7 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	 */
 	public String postService(Service service) throws UnirestException {
 		HttpResponse<String> response = Unirest.post(getUrl())
+				.basicAuth(_username, _passwort)
 				.header("Content-Type", "application/json")
 				.body(_marshaller.marshall(service))
 				.asString();
@@ -72,7 +83,9 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public Service getService(String id) throws UnirestException {
-		HttpResponse<String> response = Unirest.post(getUrl() + "/" + id + "?expanded").asString();
+		HttpResponse<String> response = Unirest.post(getUrl() + "/" + id + "?expanded")
+				.basicAuth(_username, _passwort)
+				.asString();
 		if(response.getStatus() == 404) {
 			return null;
 		}
@@ -88,6 +101,7 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	 */
 	public void putService(String id, Service service) throws UnirestException {
 		Unirest.put(getUrl() + "/" + id)
+				.basicAuth(_username, _passwort)
 				.header("Content-Type", "application/json")
 				.body(_marshaller.marshall(service))
 				.asString();
@@ -100,7 +114,9 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public void deleteService(String id) throws UnirestException {
-		Unirest.delete(getUrl() + "/" + id).asString();
+		Unirest.delete(getUrl() + "/" + id)
+				.basicAuth(_username, _passwort)
+				.asString();
 	}
 	
 	/**
@@ -113,8 +129,12 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	public List<Service> getServicesOfName(String name) throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<JsonNode> response = Unirest.get(getUrl() + "/of/name/" + name + "?expanded").asJson();
-		JSONObject responseJson = response.getBody().getObject();
+		HttpResponse<String> response = Unirest.get(getUrl() + "/of/name/" + name + "?expanded")
+				.basicAuth(_username, _passwort)
+				.asString();
+
+		System.out.println(response.getBody());
+		JSONObject responseJson = new JSONObject(response.getBody());
 		JSONArray servicesJson = responseJson.getJSONArray("services");
 		for(Object jsonEntry : servicesJson) {
 			JSONObject serviceJson = (JSONObject)jsonEntry;
@@ -134,7 +154,9 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	public List<Service> getServicesOfType(String type) throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<JsonNode> response = Unirest.get(getUrl() + "/of/type/" + type + "?expanded").asJson();
+		HttpResponse<JsonNode> response = Unirest.get(getUrl() + "/of/type/" + type + "?expanded")
+				.basicAuth(_username, _passwort)
+				.asJson();
 		JSONObject responseJson = response.getBody().getObject();
 		JSONArray servicesJson = responseJson.getJSONArray("services");
 		for(Object jsonEntry : servicesJson) {
