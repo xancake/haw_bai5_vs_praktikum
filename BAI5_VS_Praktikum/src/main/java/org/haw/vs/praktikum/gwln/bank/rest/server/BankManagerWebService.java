@@ -17,6 +17,10 @@ import org.haw.vs.praktikum.gwln.bank.Transfer;
 import org.haw.vs.praktikum.gwln.bank.rest.AccountJsonMarshaller;
 import org.haw.vs.praktikum.gwln.bank.rest.BankJsonMarshaller;
 import org.haw.vs.praktikum.gwln.bank.rest.TransferJsonMarshaller;
+import org.haw.vs.praktikum.gwln.client.restclient.game.Game;
+import org.haw.vs.praktikum.gwln.client.restclient.game.GamesRestClient;
+import org.haw.vs.praktikum.gwln.events.Event;
+import org.haw.vs.praktikum.gwln.events.rest.client.EventManagerRestClient;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesNotAvailableException;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesRegistry;
 import org.json.JSONObject;
@@ -26,7 +30,7 @@ import spark.Response;
 public class BankManagerWebService {
 	private static final String NAME = "Bank Service 42_1337_69";
 	private static final String DESCRIPTION = "Bester Bank Service 42_1337_69";
-	private static final String SERVICE = "Bank Service";
+	private static final String SERVICE = "banks";
 	private static String URI;
 	
 	private static final BankJsonMarshaller BANK_MARSHALLER = new BankJsonMarshaller();
@@ -173,7 +177,8 @@ public class BankManagerWebService {
 			String bankId = request.params(":bankId");
 			
 			Transaction transaction = new Transaction(TRANSACTION_COUNTER++, URI + "/banks/" + bankId + "/transaction/");
-			MANAGER.getBank(Integer.parseInt(bankId)).createTransaction(transaction);
+			Bank bank = MANAGER.getBank(Integer.parseInt(bankId));
+			bank.createTransaction(transaction);
 			
 			response.header(HttpHeader.LOCATION.asString(), transaction.getUri());
 			response.status(HttpStatus.CREATED_201);
@@ -204,7 +209,36 @@ public class BankManagerWebService {
 			String transactionId = request.params(":transactionId");
 			
 			Transaction transaction = MANAGER.getBank(Integer.parseInt(bankId)).getTransaction(Integer.parseInt(transactionId));
-			MANAGER.getBank(Integer.parseInt(bankId)).commitTransaction(transaction);
+			Bank bank = MANAGER.getBank(Integer.parseInt(bankId));
+			bank.commitTransaction(transaction);
+			
+			Game game = GamesRestClient.getGame(bank.getGame());
+			JSONObject services = GamesRestClient.getGameServices(game.getServices());
+			EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
+			String time = String.valueOf(System.currentTimeMillis());
+			for(Transfer transfer : transaction.getTransfers()) {
+				eventClient.postEvent(new Event(
+						"siehe Location Header", 
+						bank.getGame(), 
+						"Bank Transaction", 
+						"Bank Transaction Event", 
+						"Transaction Commited (Transfer from)", 
+						transaction.getUri(), 
+						transfer.getFrom().getPlayer(),
+						time
+				));
+				eventClient.postEvent(new Event(
+						"siehe Location Header", 
+						bank.getGame(), 
+						"Bank Transaction", 
+						"Bank Transaction Event", 
+						"Transaction Commited (Transfer to)", 
+						transaction.getUri(), 
+						transfer.getTo().getPlayer(),
+						time
+				));
+			}
+			
 			
 			response.status(HttpStatus.ACCEPTED_202);
 			return "Transaktion " + String.valueOf(transaction.getId()) + " ausgeführt";
@@ -223,7 +257,20 @@ public class BankManagerWebService {
 			String transactionId = request.params(":transactionId");
 			
 			Transaction transaction = MANAGER.getBank(Integer.parseInt(bankId)).getTransaction(Integer.parseInt(transactionId));
-			MANAGER.getBank(Integer.parseInt(bankId)).rollbackTransaction(transaction);
+			Bank bank = MANAGER.getBank(Integer.parseInt(bankId));
+			bank.rollbackTransaction(transaction);
+			
+			Game game = GamesRestClient.getGame(bank.getGame());
+			JSONObject services = GamesRestClient.getGameServices(game.getServices());
+			EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
+			eventClient.postEvent(new Event("siehe Location Header", 
+											bank.getGame(), 
+											"Bank Transaction", 
+											"Bank Transaction Event", 
+											"Transaction Cancelled", 
+											transaction.getUri(), 
+											null,
+											System.currentTimeMillis()+""));
 			
 			response.status(HttpStatus.NO_CONTENT_204);
 			return "Transaktion " + String.valueOf(transaction.getId()) + " abgebrochen";
@@ -245,7 +292,20 @@ public class BankManagerWebService {
 			Account fromAccount = bank.getAccount("bank");
 			Account toAccount = bank.getAccount(to.substring(to.lastIndexOf("/")+1));
 			if(transactionId == null) {
-				bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
+				int transferId = bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
+				
+				Game game = GamesRestClient.getGame(bank.getGame());
+				JSONObject services = GamesRestClient.getGameServices(game.getServices());
+				EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
+				eventClient.postEvent(new Event("siehe Location Header", 
+												bank.getGame(), 
+												"Bank Transaction", 
+												"Bank Transaction Event", 
+												"Transfer to " + toAccount.getPlayer(), 
+												URI + "/banks/" + bankId + "/transfers/" + transferId, 
+												toAccount.getPlayer(),
+												System.currentTimeMillis()+""));
+				
 			} else {
 				Transaction transaction = bank.getTransaction(Integer.parseInt(transactionId));
 				bank.transactionalTransfer(transaction, fromAccount, toAccount, Integer.parseInt(amount), reason);
@@ -274,7 +334,19 @@ public class BankManagerWebService {
 			Account fromAccount = bank.getAccount(from.substring(from.lastIndexOf("/")+1));
 			Account toAccount = bank.getAccount("bank");
 			if(transactionId == null) {
-				bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
+				int transferId = bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
+				
+				Game game = GamesRestClient.getGame(bank.getGame());
+				JSONObject services = GamesRestClient.getGameServices(game.getServices());
+				EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
+				eventClient.postEvent(new Event("siehe Location Header", 
+												bank.getGame(), 
+												"Bank Transaction", 
+												"Bank Transaction Event", 
+												"Transfer from " + fromAccount.getPlayer(), 
+												URI + "/banks/" + bankId + "/transfers/" + transferId, 
+												fromAccount.getPlayer(),
+												System.currentTimeMillis()+""));
 			} else {
 				Transaction transaction = bank.getTransaction(Integer.parseInt(transactionId));
 				bank.transactionalTransfer(transaction, fromAccount, toAccount, Integer.parseInt(amount), reason);
@@ -304,7 +376,32 @@ public class BankManagerWebService {
 			Account fromAccount = bank.getAccount(from.substring(from.lastIndexOf("/")+1));
 			Account toAccount = bank.getAccount(to.substring(to.lastIndexOf("/")+1));
 			if(transactionId == null) {
-				bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
+				int transferId = bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
+				
+				Game game = GamesRestClient.getGame(bank.getGame());
+				JSONObject services = GamesRestClient.getGameServices(game.getServices());
+				EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
+				String time = String.valueOf(System.currentTimeMillis());
+				eventClient.postEvent(new Event(
+						"siehe Location Header", 
+						bank.getGame(), 
+						"Bank Transaction", 
+						"Bank Transaction Event", 
+						"Transfer to " + toAccount.getPlayer(), 
+						URI + "/banks/" + bankId + "/transfers/" + transferId, 
+						toAccount.getPlayer(),
+						time
+				));
+				eventClient.postEvent(new Event(
+						"siehe Location Header", 
+						bank.getGame(), 
+						"Bank Transaction", 
+						"Bank Transaction Event", 
+						"Transfer from " + fromAccount.getPlayer(), 
+						URI + "/banks/" + bankId + "/transfers/" + transferId, 
+						fromAccount.getPlayer(),
+						time
+				));
 			} else {
 				Transaction transaction = bank.getTransaction(Integer.parseInt(transactionId));
 				bank.transactionalTransfer(transaction, fromAccount, toAccount, Integer.parseInt(amount), reason);

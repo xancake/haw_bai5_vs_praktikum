@@ -77,10 +77,11 @@ public class Bank {
 		transaktion.addTransfer(new Transfer(from, to, amount, reason));
 	}
 	
-	public void transfer(Account from, Account to, int amount, String reason) throws InsufficientFondsException {
+	public int transfer(Account from, Account to, int amount, String reason) throws InsufficientFondsException {
 		Transfer transfer = new Transfer(from, to, amount, reason);
 		transfer.execute();
 		_transfers.add(transfer);
+		return _transfers.indexOf(transfer);
 	}
 	
 	private class BankAccount extends Account {
