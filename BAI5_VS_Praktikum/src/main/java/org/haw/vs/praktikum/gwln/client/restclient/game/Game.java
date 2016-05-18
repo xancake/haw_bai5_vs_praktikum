@@ -1,56 +1,59 @@
 package org.haw.vs.praktikum.gwln.client.restclient.game;
 
-import com.google.gson.JsonObject;
-
 public class Game {
-	private String _id;
-	private String _name;
-	private String _playersUri;
-	private JsonObject _services;
-	private JsonObject _components;
+	private String id;
+	private String name;
+	private String players;
+	private String services;
+	private String components;
 	
 	public Game(String id) {
-		_id = id;
+		this.id = id;
 	}
 
 	public String getId() {
-		return _id;
+		return id;
 	}
 
 	public String getName() {
-		return _name;
+		return name;
 	}
 
-	public String getPlayersUri() {
-		return _playersUri;
+	public String getPlayers() {
+		return players;
 	}
 
-	public JsonObject getServices() {
-		return _services;
+	public String getServices() {
+		return services;
 	}
 
-	public JsonObject getComponents() {
-		return _components;
+	public String getComponents() {
+		return components;
 	}
 
 	public void setId(String id) {
-		_id = id;
+		this.id = id;
 	}
 
 	public void setName(String name) {
-		_name = name;
+		this.name = name;
 	}
 
-	public void setPlayersUri(String playersUri) {
-		_playersUri = playersUri;
+	public void setPlayers(String playersUri) {
+		players = playersUri;
 	}
 
-	public void setServices(JsonObject services) {
-		_services = services;
+	public void setServices(String services) {
+		this.services = services;
 	}
 
-	public void setComponents(JsonObject components) {
-		_components = components;
+	public void setComponents(String components) {
+		this.components = components;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "Game [id=" + id + ", name=" + name + ", players=" + players + ", services=" + services + ", components="
+				+ components + "]";
+	}
 }

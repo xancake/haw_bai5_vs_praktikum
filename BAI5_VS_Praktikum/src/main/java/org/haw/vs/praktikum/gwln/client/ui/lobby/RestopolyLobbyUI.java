@@ -14,6 +14,9 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 import org.haw.vs.praktikum.gwln.client.restclient.game.Game;
 
 public class RestopolyLobbyUI {
@@ -21,6 +24,8 @@ public class RestopolyLobbyUI {
 	
 	private JFrame _frame;
 	private JList<Game> _gameList;
+	private JButton _createGameButton;
+	private JButton _refreshButton;
 	private JButton _beitretenButton;
 	
 	private RestopolyLobbyListener_I _listener;
@@ -34,8 +39,12 @@ public class RestopolyLobbyUI {
 	
 	private void initComponents() {
 		_frame = new JFrame(TITLE);
+		_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		_gameList = new JList<>();
+		_createGameButton = new JButton("Anlegen");
+		_refreshButton = new JButton("Aktualisieren");
 		_beitretenButton = new JButton("Beitreten");
+		_beitretenButton.setEnabled(false);
 	}
 	
 	private void initLayout() {
@@ -43,6 +52,8 @@ public class RestopolyLobbyUI {
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 5));
 		buttonPanel.add(Box.createHorizontalGlue());
+		buttonPanel.add(_createGameButton);
+		buttonPanel.add(_refreshButton);
 		buttonPanel.add(_beitretenButton);
 		
 		JPanel content = new JPanel(new BorderLayout());
@@ -51,9 +62,28 @@ public class RestopolyLobbyUI {
 		content.add(buttonPanel, BorderLayout.SOUTH);
 		
 		_frame.setContentPane(content);
+		_frame.pack();
 	}
 	
 	private void initListeners() {
+		_gameList.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				_beitretenButton.setEnabled(_gameList.getSelectedValue() != null);
+			}
+		});
+		_createGameButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_listener.onSpielAnlegen();
+			}
+		});
+		_refreshButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				_listener.onAktualisieren();
+			}
+		});
 		_beitretenButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -3,9 +3,11 @@ package org.haw.vs.praktikum.gwln.client.ui.game;
 import java.util.Objects;
 import org.haw.vs.praktikum.gwln.client.restclient.dice.DiceRestClient;
 import org.haw.vs.praktikum.gwln.client.restclient.game.Game;
+import org.haw.vs.praktikum.gwln.client.restclient.game.GamesRestClient;
 import org.haw.vs.praktikum.gwln.client.service.ClientService;
 import org.haw.vs.praktikum.gwln.client.service.ClientServiceListener_I;
 import org.haw.vs.praktikum.gwln.events.Event;
+import org.json.JSONObject;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
@@ -15,10 +17,11 @@ public class RestopolyGameController implements RestopolyGameListener_I, ClientS
 	private ClientService _clientService;
 	private Game _game;
 	
-	public RestopolyGameController(Game game) {
+	public RestopolyGameController(Game game) throws UnirestException {
 		_ui = new RestopolyGameUI(this);
 		_game = Objects.requireNonNull(game);
-		_diceClient = new DiceRestClient(game.getServices().get("dice").getAsString());
+		JSONObject services = GamesRestClient.getGameServices(game.getServices());
+		_diceClient = new DiceRestClient(services.getString("dice"));
 		_clientService = new ClientService();
 	}
 	

@@ -3,6 +3,7 @@ package org.haw.vs.praktikum.gwln.client.restclient.game;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jetty.http.HttpHeader;
 import org.haw.vs.praktikum.gwln.rest.client.AbstractRestClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,11 +15,10 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class GamesRestClient extends AbstractRestClient {
-	private Gson _gson;
+	private static final Gson _gson = new Gson();
 	
 	public GamesRestClient(String url) {
 		super(url, "/games");
-		_gson = new Gson();
 	}
 	
 	public List<Game> getGames() throws UnirestException {
@@ -27,17 +27,30 @@ public class GamesRestClient extends AbstractRestClient {
 		List<Game> games = new ArrayList<Game>();
 		JSONArray gamesJson = response.getBody().getArray();
 		for(Object gameEntryO : gamesJson) {
-			JSONObject gameJson = (JSONObject)gameEntryO;
-			
-			Game game = _gson.fromJson(gameJson.toString(), Game.class);
+			JSONObject json = new JSONObject(gameEntryO.toString());
+			String gameURL = json.getString("id");
+			Game game = getGame(gameURL);
 			games.add(game);
 		}
 		
 		return games;
 	}
 	
-	public String getGameStatus(String gameId) throws UnirestException {
-		return Unirest.get(getUrl() + gameId + "/status").asString().getBody();
+	public String postGame(String name, String diceService, String eventService) throws UnirestException {
+		JSONObject services = new JSONObject();
+		services.put("dice", diceService);
+		services.put("events", eventService);
+		
+		JSONObject json = new JSONObject();
+		json.put("name", name);
+		json.put("services", services);
+		
+		HttpResponse<String> response = Unirest.post(getUrl())
+				.header(HttpHeader.CONTENT_TYPE.asString(), "application/json")
+				.body(json)
+				.asString();
+		
+		return response.getHeaders().getFirst(HttpHeader.LOCATION.asString());
 	}
 	
 	public void registerPlayer(String gameId, String user, String pawn, String account, String ready) throws UnirestException {
@@ -51,6 +64,20 @@ public class GamesRestClient extends AbstractRestClient {
 				.header("Content-Type", "application/json")
 				.body(json)
 				.asString();
+	}
+	
+	public static Game getGame(String uri) throws UnirestException{
+		HttpResponse<String> response = Unirest.get(uri).asString();
+		return _gson.fromJson(response.getBody(), Game.class);
+	}
+	
+	public static String getGameStatus(String url) throws UnirestException {
+		return Unirest.get(url + "/status").asString().getBody();
+	}
+	
+	public static JSONObject getGameServices(String uri) throws UnirestException{
+		HttpResponse<String> response = Unirest.get(uri).asString();
+		return new JSONObject(response.getBody());
 	}
 	
 	public boolean isPlayersTurn(String gameId, String user) throws UnirestException {

@@ -25,7 +25,7 @@ import spark.Response;
 public class EventManagerWebService {
 	private static final String NAME = "Event Manager Service 42_1337_69";
 	private static final String DESCRIPTION = "Bester Event Manager 42_1337_69";
-	private static final String SERVICE = "Event Manager Service";
+	private static final String SERVICE = "events";
 	
 	private static String URI;
 	private static final EventJsonMarshaller EVENT_MARSHALLER = new EventJsonMarshaller();
