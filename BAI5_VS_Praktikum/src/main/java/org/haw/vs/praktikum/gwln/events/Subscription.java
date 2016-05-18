@@ -13,7 +13,7 @@ public class Subscription {
 		_id = id;
 		_baseUri = Objects.requireNonNull(baseUri);
 		_game = Objects.requireNonNull(game);
-		_callUri = Objects.requireNonNull(_callUri);
+		_callUri = Objects.requireNonNull(callUri);
 		_prototypeEvent = Objects.requireNonNull(prototypeEvent);
 	}
 	

@@ -18,7 +18,10 @@ public class EventJsonMarshaller {
 	}
 	
 	public Event unmarshall(String source) {
-		JSONObject json = new JSONObject(source);
+		return unmarshall(new JSONObject(source));
+	}
+	
+	public Event unmarshall(JSONObject json) {
 		String id = json.optString("id");
 		String game = json.getString("game");
 		String type = json.getString("type");

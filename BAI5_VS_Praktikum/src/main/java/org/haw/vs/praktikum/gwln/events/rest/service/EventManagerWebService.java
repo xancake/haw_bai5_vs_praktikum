@@ -113,16 +113,21 @@ public class EventManagerWebService {
 	}
 	
 	private static String getSubscriptions(Request request, Response response) {
-		List<Subscription> subscriptions = MANAGER.getSubscriptions();
-		
-		return SUBSCRIPTION_MARSHALLER.marshall(subscriptions);
+		try {
+			List<Subscription> subscriptions = MANAGER.getSubscriptions();
+			
+			return SUBSCRIPTION_MARSHALLER.marshall(subscriptions);
+		} catch(Exception e) {
+			response.status(HttpStatus.PRECONDITION_FAILED_412);
+			return e.getMessage();
+		}
 	}
 	
 	private static String postSubscription(Request request, Response response) {
 		JSONObject json = new JSONObject(request.body());
 		String game = json.getString("game");
 		String callUri = json.getString("uri");
-		Event prototypeEvent = EVENT_MARSHALLER.unmarshall(json.getString("event"));
+		Event prototypeEvent = EVENT_MARSHALLER.unmarshall(json.getJSONObject("event"));
 		
 		Subscription subscription = new Subscription(SUBSCRIPTION_COUNTER++, URI + "/events/subscriptions/", game, callUri, prototypeEvent);
 		MANAGER.addSubscription(subscription);
@@ -138,7 +143,7 @@ public class EventManagerWebService {
 			
 			MANAGER.removeSubscription(Integer.parseInt(subscriptionId));
 			
-			response.status(HttpStatus.NO_CONTENT_204);
+			response.status(HttpStatus.ACCEPTED_202);
 			return "Subscription ausgetragen";
 		} catch(Exception e) {
 			response.status(HttpStatus.PRECONDITION_FAILED_412);
@@ -157,9 +162,9 @@ public class EventManagerWebService {
 		post("/events", EventManagerWebService::postEvent);
 		get("/events", EventManagerWebService::getEvents);
 		delete("/events", EventManagerWebService::deleteEvents);
-		get("/events/:eventid", EventManagerWebService::getEvent);
 		get("/events/subscriptions", EventManagerWebService::getSubscriptions);
 		post("/events/subscriptions", EventManagerWebService::postSubscription);
 		delete("/events/subscriptions/:subscriptionId", EventManagerWebService::deleteSubscription);
+		get("/events/:eventid", EventManagerWebService::getEvent);
 	}
 }

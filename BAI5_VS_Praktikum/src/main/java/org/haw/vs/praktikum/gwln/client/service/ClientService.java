@@ -47,4 +47,9 @@ public class ClientService {
 	public void removeListener(ClientServiceListener_I l) {
 		listeners.remove(l);
 	}
+	
+	public static void main(String... args) {
+		Spark.port(12345);
+		new ClientService().start();
+	}
 }
