@@ -1,6 +1,8 @@
 package org.haw.vs.praktikum.gwln.client.ui.game;
 
+import java.net.MalformedURLException;
 import java.util.Objects;
+
 import org.haw.vs.praktikum.gwln.client.restclient.dice.DiceRestClient;
 import org.haw.vs.praktikum.gwln.client.restclient.game.Game;
 import org.haw.vs.praktikum.gwln.client.restclient.game.GamesRestClient;
@@ -17,7 +19,7 @@ public class RestopolyGameController implements RestopolyGameListener_I, ClientS
 	private ClientService _clientService;
 	private Game _game;
 	
-	public RestopolyGameController(Game game) throws UnirestException {
+	public RestopolyGameController(Game game) throws UnirestException, MalformedURLException {
 		_ui = new RestopolyGameUI(this);
 		_game = Objects.requireNonNull(game);
 		JSONObject services = GamesRestClient.getGameServices(game.getServices());

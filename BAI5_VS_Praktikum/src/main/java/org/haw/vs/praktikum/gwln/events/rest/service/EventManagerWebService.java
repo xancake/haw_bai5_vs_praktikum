@@ -154,7 +154,7 @@ public class EventManagerWebService {
 	public static void main(String[] args) throws UnknownHostException {
 		try {
 			URI = "http://" + InetAddress.getLocalHost().getHostAddress() + ":4567";
-			YellowPagesRegistry.registerOrUpdateService(NAME, DESCRIPTION, SERVICE, URI + "/events");
+			YellowPagesRegistry.getInstance().registerOrUpdateService(NAME, DESCRIPTION, SERVICE, URI + "/events");
 		} catch(YellowPagesNotAvailableException e) {
 			e.printStackTrace();
 		}

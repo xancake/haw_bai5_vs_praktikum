@@ -1,11 +1,14 @@
 package org.haw.vs.praktikum.gwln.yellowpages;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.haw.vs.praktikum.gwln.rest.client.AbstractRestClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -22,15 +25,20 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	private String _username;
 	private String _passwort;
 	
+	public YellowPagesRestClient(String url) throws MalformedURLException {
+		this(new URL(url));
+	}
+	
 	/**
 	 * Die URL, auf der sich der Yellow-Pages Web-Service befindet.
 	 * @param url Die URL des Yellow-Pages
+	 * @throws MalformedURLException 
 	 */
-	public YellowPagesRestClient(String url) {
+	public YellowPagesRestClient(URL url) throws MalformedURLException {
 		this(url, "", "");
 	}
 	
-	public YellowPagesRestClient(String url, String username, String password) {
+	public YellowPagesRestClient(URL url, String username, String password) throws MalformedURLException {
 		super(url, "/services");
 		_username = username;
 		_passwort = password;
@@ -46,7 +54,7 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	public List<Service> getServices() throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<JsonNode> response = Unirest.get(getUrl() + "?expanded")
+		HttpResponse<JsonNode> response = Unirest.get(getURL().toExternalForm() + "?expanded")
 				.basicAuth(_username, _passwort)
 				.asJson();
 		JSONObject responseJson = response.getBody().getObject();
@@ -67,7 +75,7 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public String postService(Service service) throws UnirestException {
-		HttpResponse<String> response = Unirest.post(getUrl())
+		HttpResponse<String> response = Unirest.post(getURL().toExternalForm())
 				.basicAuth(_username, _passwort)
 				.header("Content-Type", "application/json")
 				.body(_marshaller.marshall(service))
@@ -83,7 +91,7 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public Service getService(String id) throws UnirestException {
-		HttpResponse<String> response = Unirest.post(getUrl() + "/" + id + "?expanded")
+		HttpResponse<String> response = Unirest.post(getURL().toExternalForm() + "/" + id + "?expanded")
 				.basicAuth(_username, _passwort)
 				.asString();
 		if(response.getStatus() == 404) {
@@ -100,7 +108,7 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public void putService(String id, Service service) throws UnirestException {
-		Unirest.put(getUrl() + "/" + id)
+		Unirest.put(getURL().toExternalForm() + "/" + id)
 				.basicAuth(_username, _passwort)
 				.header("Content-Type", "application/json")
 				.body(_marshaller.marshall(service))
@@ -114,7 +122,7 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	 * @throws UnirestException Wenn ein Fehler bei der Übermittlung des Requests auftritt
 	 */
 	public void deleteService(String id) throws UnirestException {
-		Unirest.delete(getUrl() + "/" + id)
+		Unirest.delete(getURL().toExternalForm() + "/" + id)
 				.basicAuth(_username, _passwort)
 				.asString();
 	}
@@ -129,7 +137,7 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	public List<Service> getServicesOfName(String name) throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<String> response = Unirest.get(getUrl() + "/of/name/" + name + "?expanded")
+		HttpResponse<String> response = Unirest.get(getURL().toExternalForm() + "/of/name/" + name + "?expanded")
 				.basicAuth(_username, _passwort)
 				.asString();
 
@@ -154,7 +162,7 @@ public class YellowPagesRestClient extends AbstractRestClient {
 	public List<Service> getServicesOfType(String type) throws UnirestException {
 		List<Service> services = new ArrayList<Service>();
 		
-		HttpResponse<JsonNode> response = Unirest.get(getUrl() + "/of/type/" + type + "?expanded")
+		HttpResponse<JsonNode> response = Unirest.get(getURL().toExternalForm() + "/of/type/" + type + "?expanded")
 				.basicAuth(_username, _passwort)
 				.asJson();
 		JSONObject responseJson = response.getBody().getObject();

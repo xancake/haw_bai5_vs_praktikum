@@ -1,5 +1,6 @@
 package org.haw.vs.praktikum.gwln.client.ui.lobby;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -19,7 +20,7 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 	private GamesRestClient _gamesClient;
 	private RestopolyLobbyUI _ui;
 	
-	public RestopolyLobbyController() throws UnirestException {
+	public RestopolyLobbyController() throws UnirestException, MalformedURLException {
 		_yellowpages = new YellowPagesRestClient(YellowPagesRestClient.HAW_YELLOW_PAGES_INTERNAL);
 		_ui = new RestopolyLobbyUI(this);
 		_ui.setGameButtonsEnabled(false);
@@ -39,6 +40,8 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 				_ui.setGameButtonsEnabled(true);
 				onAktualisieren();
 			}
+		} catch(MalformedURLException e) {
+			_ui.showFehlermeldung("Der ausgewählte Service verwendet eine ungültige URL:\n" + e.getMessage());
 		} catch(UnirestException e) {
 			_ui.showFehlermeldung("Fehler beim Verbinden mit dem Game-Service.\n" + e.getMessage());
 		}
@@ -97,8 +100,11 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 			RestopolyGameController gameController = new RestopolyGameController(game);
 			gameController.start();
 			
+		} catch(MalformedURLException e) {
+			_ui.showFehlermeldung(e.getMessage());
+			e.printStackTrace();
 		} catch(UnirestException e) {
-			// TODO: Fehlermeldung auf GUI?
+			_ui.showFehlermeldung(e.getMessage());
 			e.printStackTrace();
 		}
 	}

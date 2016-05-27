@@ -1,6 +1,7 @@
 package org.haw.vs.praktikum.gwln.client.restclient.user;
 
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 
 import org.haw.vs.praktikum.gwln.rest.client.AbstractRestClient;
@@ -11,7 +12,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class UserRestClient extends AbstractRestClient {
-	public UserRestClient(String url) {
+	public UserRestClient(String url) throws MalformedURLException {
 		super(url, "/users");
 	}
 	
@@ -26,7 +27,7 @@ public class UserRestClient extends AbstractRestClient {
 			
 			json.put("uri", url);
 			
-			HttpResponse<String> response = Unirest.post(getUrl())
+			HttpResponse<String> response = Unirest.post(getURL().toExternalForm())
 					.header("Content-Type", "application/json")
 					.body(json)
 					.asString();

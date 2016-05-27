@@ -1,15 +1,17 @@
 package org.haw.vs.praktikum.gwln.bank.rest.client;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
 import org.haw.vs.praktikum.gwln.bank.Account;
 import org.haw.vs.praktikum.gwln.bank.Transfer;
 import org.haw.vs.praktikum.gwln.bank.rest.AccountJsonMarshaller;
-import org.haw.vs.praktikum.gwln.bank.rest.TransferJsonMarshaller;
 import org.haw.vs.praktikum.gwln.rest.client.AbstractRestClient;
 import org.json.JSONObject;
+
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -18,33 +20,33 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 public class BankManagerRestClient extends AbstractRestClient {
 	private static final AccountJsonMarshaller ACCOUNT_MARSHALLER = new AccountJsonMarshaller();
 	
-	public BankManagerRestClient(String url) {
+	public BankManagerRestClient(String url) throws MalformedURLException {
 		super(url, "/banks");
 	}
 	
 	public List<String> getBanks() throws UnirestException {
-		return getBanks(getUrl());
+		return getBanks(getURL().toExternalForm());
 	}
 	
 	public String postBank(String gameId) throws UnirestException {
-		return postBank(getUrl(), gameId);
+		return postBank(getURL().toExternalForm(), gameId);
 	}
 	
 	public JSONObject getBank(int bankId) throws UnirestException {
-		return getBank(getUrl() + "/" + bankId);
+		return getBank(getURL().toExternalForm() + "/" + bankId);
 	}
 	
 	public void putBank(int bankId, String accountsUri, String transfersUri) throws UnirestException {
-		Unirest.put(getUrl() + "/" + bankId).asString();
+		Unirest.put(getURL().toExternalForm() + "/" + bankId).asString();
 		// TODO: Not yet implemented (completely)
 	}
 	
 	public String postAccount(int bankId, Account account) throws UnirestException {
-		return postAccount(getUrl() + "/" + bankId + "/accounts", account);
+		return postAccount(getURL().toExternalForm() + "/" + bankId + "/accounts", account);
 	}
 	
 	public Account getAccountById(int bankId, int accountId) throws UnirestException {
-		return getAccount(getUrl() + "/" + bankId + "/accounts/" + accountId);
+		return getAccount(getURL().toExternalForm() + "/" + bankId + "/accounts/" + accountId);
 	}
 	
 	
@@ -52,20 +54,20 @@ public class BankManagerRestClient extends AbstractRestClient {
 	
 	
 //	public Account getAccount(String gameId, String playerId) throws UnirestException {
-//		HttpResponse<String> response = Unirest.get(getUrl() + "/" + gameId + "/accounts/" + playerId).asString();
+//		HttpResponse<String> response = Unirest.get(getURL().toExternalForm() + "/" + gameId + "/accounts/" + playerId).asString();
 //		return ACCOUNT_MARSHALLER.unmarshall(response.getBody());
 //	}
 //	
 //	public void postTransferTo(String gameId, String to, int amount) throws UnirestException {
-//		Unirest.post(getUrl() + "/" + gameId + "/transfer/to/" + to + "/" + amount).asString();
+//		Unirest.post(getURL().toExternalForm() + "/" + gameId + "/transfer/to/" + to + "/" + amount).asString();
 //	}
 //	
 //	public void postTransferFrom(String gameId, String from, int amount) throws UnirestException {
-//		Unirest.post(getUrl() + "/" + gameId + "/transfer/from/" + from + "/" + amount).asString();
+//		Unirest.post(getURL().toExternalForm() + "/" + gameId + "/transfer/from/" + from + "/" + amount).asString();
 //	}
 //	
 //	public void postTransferFromTo(String gameId, String from, String to, String amount) throws UnirestException {
-//		Unirest.post(getUrl() + "/" + gameId + "/transfer/from/" + from + "/to/" + to + "/" + amount);
+//		Unirest.post(getURL().toExternalForm() + "/" + gameId + "/transfer/from/" + from + "/to/" + to + "/" + amount);
 //	}
 	
 	

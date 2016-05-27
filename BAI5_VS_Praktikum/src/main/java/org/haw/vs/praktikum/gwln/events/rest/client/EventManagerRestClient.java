@@ -1,5 +1,6 @@
 package org.haw.vs.praktikum.gwln.events.rest.client;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,13 +21,14 @@ public class EventManagerRestClient extends AbstractRestClient {
 	/**
 	 * 
 	 * @param url Die URL des "/events"-Services
+	 * @throws MalformedURLException 
 	 */
-	public EventManagerRestClient(String url) {
+	public EventManagerRestClient(String url) throws MalformedURLException {
 		super(url, "/events");
 	}
 	
 	public String postEvent(Event event) throws UnirestException {
-		HttpResponse<String> response = Unirest.post(getUrl())
+		HttpResponse<String> response = Unirest.post(getURL().toExternalForm())
 				.header("Content-Type", "application/json")
 				.body(_marshaller.marshall(event))
 				.asString();
@@ -34,7 +36,7 @@ public class EventManagerRestClient extends AbstractRestClient {
 	}
 	
 	public Event getEventById(String eventId) throws UnirestException {
-		return getEvent(getUrl() + "/" + eventId);
+		return getEvent(getURL().toExternalForm() + "/" + eventId);
 	}
 	
 	public static Event getEvent(String uri) throws UnirestException {
@@ -45,17 +47,17 @@ public class EventManagerRestClient extends AbstractRestClient {
 	@SuppressWarnings("unchecked")
 	public List<Event> getEvents(String game, String type, String name, String reason, String resource, String player) throws UnirestException {
 		String parameters = createParameterString(game, type, name, reason, resource, player);
-		HttpResponse<String> response = Unirest.get(getUrl() + parameters).asString();
+		HttpResponse<String> response = Unirest.get(getURL().toExternalForm() + parameters).asString();
 		return (List<Event>)new Gson().fromJson(response.getBody(), List.class);
 	}
 	
 	public void deleteEvents(String game, String type, String name, String reason, String resource, String player) throws UnirestException {
 		String parameters = createParameterString(game, type, name, reason, resource, player);
-		Unirest.delete(getUrl() + parameters).asString();
+		Unirest.delete(getURL().toExternalForm() + parameters).asString();
 	}
 	
 	public List<String> getSubscriptions() throws UnirestException{
-		HttpResponse<String> response = Unirest.get(getUrl() + "/subscriptions").asString();
+		HttpResponse<String> response = Unirest.get(getURL().toExternalForm() + "/subscriptions").asString();
 		JSONArray responseList = new JSONArray(response);
 		List<String> subscriptions = new ArrayList<>();
 		responseList.forEach( entry -> subscriptions.add((String)entry) );
@@ -63,14 +65,14 @@ public class EventManagerRestClient extends AbstractRestClient {
 	}
 	
 	public String postSubscription(Event prototypeEvent) throws UnirestException{
-		HttpResponse<String> response = Unirest.post(getUrl() + "/subscriptions")
+		HttpResponse<String> response = Unirest.post(getURL().toExternalForm() + "/subscriptions")
 												.body(_marshaller.marshall(prototypeEvent))
 												.asString();
 		return response.getHeaders().getFirst(HttpHeader.LOCATION.asString());
 	}
 	
 	public void deleteSubscription(String id) throws UnirestException{
-		Unirest.delete(getUrl() + "/subscriptions/" + id).asString();
+		Unirest.delete(getURL().toExternalForm() + "/subscriptions/" + id).asString();
 	}
 	
 	private String createParameterString(String game, String type, String name, String reason, String resource, String player) {
