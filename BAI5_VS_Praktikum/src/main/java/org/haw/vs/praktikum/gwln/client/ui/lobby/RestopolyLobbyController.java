@@ -11,7 +11,6 @@ import org.haw.vs.praktikum.gwln.client.restclient.user.UserRestClient;
 import org.haw.vs.praktikum.gwln.client.ui.game.RestopolyGameController;
 import org.haw.vs.praktikum.gwln.yellowpages.Service;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesRestClient;
-import org.json.JSONObject;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
@@ -52,6 +51,7 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 		String name = JOptionPane.showInputDialog("Spielname: ");
 		String diceService = selectServiceOfTypeEndlessly("dice");
 		String eventService = selectServiceOfTypeEndlessly("events");
+		// TODO: die anderen Services suchen
 		
 		try {
 			_gamesClient.postGame(name, diceService, eventService);
@@ -69,7 +69,7 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 			games.removeIf((game) -> {
 				try {
 					System.out.println("[!!!] " + game);
-					String gameStatus = GamesRestClient.getGameStatus(game.getId());
+					String gameStatus = _gamesClient.getGameStatus(game.getId());
 					System.out.println("[!!!] Status: " + gameStatus);
 					return !"registration".equals(gameStatus);
 				} catch(UnirestException e) {
@@ -79,6 +79,9 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 			});
 			
 			_ui.setGames(games);
+		} catch(MalformedURLException e) {
+			_ui.showFehlermeldung(e.getMessage());
+			e.printStackTrace();
 		} catch(UnirestException e) {
 			_ui.showFehlermeldung(e.toString());
 			e.printStackTrace();
@@ -90,14 +93,14 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 		try {
 			String username = JOptionPane.showInputDialog("USERNAME:");
 			
-			JSONObject services = GamesRestClient.getGameServices(game.getServices());
-			UserRestClient userClient = new UserRestClient(services.getString("users"));
+			String usersService = selectServiceOfTypeEndlessly("users");
+			UserRestClient userClient = new UserRestClient(usersService);
 			String user = userClient.registerUser(username);
 			
 			_gamesClient.registerPlayer(game.getId().substring("/games".length()), user, "pawn", "account", "false");
 			_ui.hide();
 			
-			RestopolyGameController gameController = new RestopolyGameController(game);
+			RestopolyGameController gameController = new RestopolyGameController(_gamesClient, game);
 			gameController.start();
 			
 		} catch(MalformedURLException e) {

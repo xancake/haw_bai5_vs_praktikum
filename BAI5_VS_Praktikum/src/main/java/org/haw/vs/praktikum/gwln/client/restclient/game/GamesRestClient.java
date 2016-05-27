@@ -1,6 +1,7 @@
 package org.haw.vs.praktikum.gwln.client.restclient.game;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,8 @@ public class GamesRestClient extends AbstractRestClient {
 		super(url, "/games");
 	}
 	
-	public List<Game> getGames() throws UnirestException {
+	public List<Game> getGames() throws UnirestException, MalformedURLException {
+		System.out.println(Unirest.get(getURL().toExternalForm()).asString().getBody());
 		HttpResponse<JsonNode> response = Unirest.get(getURL().toExternalForm()).asJson();
 		
 		List<Game> games = new ArrayList<Game>();
@@ -31,7 +33,7 @@ public class GamesRestClient extends AbstractRestClient {
 			JSONObject json = new JSONObject(gameEntryO.toString());
 			String gameURL = json.getString("id");
 			if(!gameURL.startsWith("http://")) {
-				gameURL = getURL().getHost() + gameURL;
+				gameURL = getURL().getProtocol() + "://" + getURL().getAuthority() + gameURL;
 			}
 			Game game = getGame(gameURL);
 			games.add(game);
@@ -49,7 +51,7 @@ public class GamesRestClient extends AbstractRestClient {
 		json.put("name", name);
 		json.put("services", services);
 		
-		HttpResponse<String> response = Unirest.post(getURL().toExternalForm())
+		HttpResponse<String> response = Unirest.post(getURL().getProtocol() + "://" + getURL().getAuthority() + "/games")
 				.header(HttpHeader.CONTENT_TYPE.asString(), "application/json")
 				.body(json)
 				.asString();
@@ -64,29 +66,33 @@ public class GamesRestClient extends AbstractRestClient {
 		json.put("account", account);
 		json.put("ready", ready);
 		
-		Unirest.post(getURL().toExternalForm() + gameId + "/players")
+		Unirest.post(getURL().getProtocol() + "://" + getURL().getAuthority() + "/games/" + gameId + "/players")
 				.header("Content-Type", "application/json")
 				.body(json)
 				.asString();
 	}
 	
-	public static Game getGame(String uri) throws UnirestException{
-		HttpResponse<String> response = Unirest.get(uri).asString();
-		return _gson.fromJson(response.getBody(), Game.class);
+	public Game getGame(String uri) throws UnirestException, MalformedURLException {
+		return getGame(new URL(getURL(), uri));
 	}
 	
-	public static String getGameStatus(String url) throws UnirestException {
-		return Unirest.get(url + "/status").asString().getBody();
+	public String getGameStatus(String uri) throws UnirestException {
+		return Unirest.get(getURL().getProtocol() + "://" + getURL().getAuthority() + uri + "/status").asString().getBody();
 	}
 	
-	public static JSONObject getGameServices(String uri) throws UnirestException{
-		HttpResponse<String> response = Unirest.get(uri).asString();
+	public JSONObject getGameServices(String uri) throws UnirestException{
+		HttpResponse<String> response = Unirest.get(getURL().getProtocol() + "://" + getURL().getAuthority() + uri).asString();
 		return new JSONObject(response.getBody());
 	}
 	
 	public boolean isPlayersTurn(String gameId, String user) throws UnirestException {
-		HttpResponse<JsonNode> response = Unirest.get(getURL().toExternalForm() + gameId + "/players/turn").asJson();
+		HttpResponse<JsonNode> response = Unirest.get(getURL().getProtocol() + "://" + getURL().getAuthority() + "/games/" + gameId + "/players/turn").asJson();
 		JSONObject currentPlayer = response.getBody().getObject();
 		return currentPlayer.getString("user").equals(user);
+	}
+	
+	public static Game getGame(URL url) throws UnirestException {
+		HttpResponse<String> response = Unirest.get(url.toExternalForm()).asString();
+		return _gson.fromJson(response.getBody(), Game.class);
 	}
 }

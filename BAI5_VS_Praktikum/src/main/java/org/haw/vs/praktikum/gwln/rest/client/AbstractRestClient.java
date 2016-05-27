@@ -15,6 +15,10 @@ public class AbstractRestClient {
 		this(new URL(url, endpoint));
 	}
 	
+	public AbstractRestClient(String url) throws MalformedURLException {
+		this(new URL(url));
+	}
+	
 	public AbstractRestClient(URL url) {
 		_url = Objects.requireNonNull(url);
 	}

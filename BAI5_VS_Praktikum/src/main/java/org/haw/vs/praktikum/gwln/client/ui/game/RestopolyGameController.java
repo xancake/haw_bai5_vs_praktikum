@@ -14,15 +14,17 @@ import org.json.JSONObject;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class RestopolyGameController implements RestopolyGameListener_I, ClientServiceListener_I {
-	private DiceRestClient _diceClient;
 	private RestopolyGameUI _ui;
+	private GamesRestClient _gamesClient;
+	private DiceRestClient _diceClient;
 	private ClientService _clientService;
 	private Game _game;
 	
-	public RestopolyGameController(Game game) throws UnirestException, MalformedURLException {
+	public RestopolyGameController(GamesRestClient gamesClient, Game game) throws UnirestException, MalformedURLException {
 		_ui = new RestopolyGameUI(this);
+		_gamesClient = Objects.requireNonNull(gamesClient);
 		_game = Objects.requireNonNull(game);
-		JSONObject services = GamesRestClient.getGameServices(game.getServices());
+		JSONObject services = _gamesClient.getGameServices(game.getServices());
 		_diceClient = new DiceRestClient(services.getString("dice"));
 		_clientService = new ClientService();
 	}

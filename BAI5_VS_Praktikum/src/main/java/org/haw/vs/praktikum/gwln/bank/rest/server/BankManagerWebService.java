@@ -4,8 +4,11 @@ import static spark.Spark.delete;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.Spark.put;
+
 import java.net.InetAddress;
+import java.net.URL;
 import java.util.List;
+
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
 import org.haw.vs.praktikum.gwln.bank.Account;
@@ -24,6 +27,7 @@ import org.haw.vs.praktikum.gwln.events.rest.client.EventManagerRestClient;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesNotAvailableException;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesRegistry;
 import org.json.JSONObject;
+
 import spark.Request;
 import spark.Response;
 
@@ -212,8 +216,10 @@ public class BankManagerWebService {
 			Bank bank = MANAGER.getBank(Integer.parseInt(bankId));
 			bank.commitTransaction(transaction);
 			
-			Game game = GamesRestClient.getGame(bank.getGame());
-			JSONObject services = GamesRestClient.getGameServices(game.getServices());
+			URL gameURL = new URL(bank.getGame());
+			GamesRestClient gamesClient = new GamesRestClient(gameURL.getProtocol() + "://" + gameURL.getAuthority());
+			Game game = gamesClient.getGame(gameURL.getPath());
+			JSONObject services = gamesClient.getGameServices(game.getServices());
 			EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
 			String time = String.valueOf(System.currentTimeMillis());
 			for(Transfer transfer : transaction.getTransfers()) {
@@ -260,8 +266,10 @@ public class BankManagerWebService {
 			Bank bank = MANAGER.getBank(Integer.parseInt(bankId));
 			bank.rollbackTransaction(transaction);
 			
-			Game game = GamesRestClient.getGame(bank.getGame());
-			JSONObject services = GamesRestClient.getGameServices(game.getServices());
+			URL gameURL = new URL(bank.getGame());
+			GamesRestClient gamesClient = new GamesRestClient(gameURL.getProtocol() + "://" + gameURL.getAuthority());
+			Game game = gamesClient.getGame(gameURL.getPath());
+			JSONObject services = gamesClient.getGameServices(game.getServices());
 			EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
 			eventClient.postEvent(new Event("siehe Location Header", 
 											bank.getGame(), 
@@ -294,8 +302,10 @@ public class BankManagerWebService {
 			if(transactionId == null) {
 				int transferId = bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
 				
-				Game game = GamesRestClient.getGame(bank.getGame());
-				JSONObject services = GamesRestClient.getGameServices(game.getServices());
+				URL gameURL = new URL(bank.getGame());
+				GamesRestClient gamesClient = new GamesRestClient(gameURL.getProtocol() + "://" + gameURL.getAuthority());
+				Game game = gamesClient.getGame(gameURL.getPath());
+				JSONObject services = gamesClient.getGameServices(game.getServices());
 				EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
 				eventClient.postEvent(new Event("siehe Location Header", 
 												bank.getGame(), 
@@ -336,8 +346,10 @@ public class BankManagerWebService {
 			if(transactionId == null) {
 				int transferId = bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
 				
-				Game game = GamesRestClient.getGame(bank.getGame());
-				JSONObject services = GamesRestClient.getGameServices(game.getServices());
+				URL gameURL = new URL(bank.getGame());
+				GamesRestClient gamesClient = new GamesRestClient(gameURL.getProtocol() + "://" + gameURL.getAuthority());
+				Game game = gamesClient.getGame(gameURL.getPath());
+				JSONObject services = gamesClient.getGameServices(game.getServices());
 				EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
 				eventClient.postEvent(new Event("siehe Location Header", 
 												bank.getGame(), 
@@ -378,8 +390,10 @@ public class BankManagerWebService {
 			if(transactionId == null) {
 				int transferId = bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
 				
-				Game game = GamesRestClient.getGame(bank.getGame());
-				JSONObject services = GamesRestClient.getGameServices(game.getServices());
+				URL gameURL = new URL(bank.getGame());
+				GamesRestClient gamesClient = new GamesRestClient(gameURL.getProtocol() + "://" + gameURL.getAuthority());
+				Game game = gamesClient.getGame(gameURL.getPath());
+				JSONObject services = gamesClient.getGameServices(game.getServices());
 				EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
 				String time = String.valueOf(System.currentTimeMillis());
 				eventClient.postEvent(new Event(
