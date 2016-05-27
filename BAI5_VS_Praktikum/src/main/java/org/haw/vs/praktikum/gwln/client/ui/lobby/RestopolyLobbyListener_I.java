@@ -4,6 +4,9 @@ import org.haw.vs.praktikum.gwln.client.restclient.game.Game;
 
 public interface RestopolyLobbyListener_I {
 	
+	void onMitGameServiceVerbinden();
+	
+	
 	void onSpielAnlegen();
 	
 	

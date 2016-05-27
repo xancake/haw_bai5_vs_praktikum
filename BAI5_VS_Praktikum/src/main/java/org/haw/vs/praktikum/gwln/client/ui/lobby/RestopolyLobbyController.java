@@ -21,13 +21,27 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 	
 	public RestopolyLobbyController() throws UnirestException {
 		_yellowpages = new YellowPagesRestClient(YellowPagesRestClient.HAW_YELLOW_PAGES_INTERNAL);
-		_gamesClient = new GamesRestClient(selectServiceOfTypeEndlessly("games"));
 		_ui = new RestopolyLobbyUI(this);
+		_ui.setGameButtonsEnabled(false);
 	}
 	
 	public void start() {
-		onAktualisieren();
 		_ui.show();
+	}
+	
+	@Override
+	public void onMitGameServiceVerbinden() {
+		try {
+			Service gameService = selectServiceOfType("games");
+			if(gameService != null) {
+				_gamesClient = new GamesRestClient(gameService.getUri());
+				_ui.setGameService(gameService);
+				_ui.setGameButtonsEnabled(true);
+				onAktualisieren();
+			}
+		} catch(UnirestException e) {
+			_ui.showFehlermeldung("Fehler beim Verbinden mit dem Game-Service.\n" + e.getMessage());
+		}
 	}
 	
 	@Override
@@ -41,6 +55,7 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 			onAktualisieren();
 		} catch(UnirestException e) {
 			_ui.showFehlermeldung(e.toString());
+			e.printStackTrace();
 		}
 	}
 	
@@ -63,6 +78,7 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 			_ui.setGames(games);
 		} catch(UnirestException e) {
 			_ui.showFehlermeldung(e.toString());
+			e.printStackTrace();
 		}
 	}
 	
@@ -97,6 +113,7 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 				}
 			} catch(UnirestException e) {
 				_ui.showFehlermeldung(e.toString());
+				e.printStackTrace();
 			}
 		}
 		return serviceUri;
