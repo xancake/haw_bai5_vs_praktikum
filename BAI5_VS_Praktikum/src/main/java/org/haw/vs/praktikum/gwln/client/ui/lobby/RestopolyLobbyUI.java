@@ -28,10 +28,10 @@ public class RestopolyLobbyUI {
 	private JFrame _frame;
 	private JLabel _gameServiceLabel;
 	private JList<Game> _gameList;
-	private JButton _connectGameServiceButton;
-	private JButton _createGameButton;
+	private JButton _connectButton;
+	private JButton _createButton;
 	private JButton _refreshButton;
-	private JButton _beitretenButton;
+	private JButton _joinButton;
 	
 	private RestopolyLobbyListener_I _listener;
 	
@@ -47,32 +47,39 @@ public class RestopolyLobbyUI {
 		_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		_gameServiceLabel = new JLabel();
 		_gameList = new JList<>();
-		_connectGameServiceButton = new JButton("Verbinden");
-		_connectGameServiceButton.setToolTipText("Mit einem Game-Service verbinden");
-		_createGameButton = new JButton("Anlegen");
+		_connectButton = new JButton("Verbinden");
 		_refreshButton = new JButton("Aktualisieren");
-		_beitretenButton = new JButton("Beitreten");
-		_beitretenButton.setEnabled(false);
+		_createButton = new JButton("Anlegen");
+		_joinButton = new JButton("Beitreten");
+		_connectButton.setToolTipText("Mit einem Game-Service verbinden");
+		_refreshButton.setToolTipText("Die Liste der Games aktualisieren");
+		_createButton.setToolTipText("Ein neues Game anlegen");
+		_joinButton.setToolTipText("Dem ausgewählten Spiel beitreten");
 	}
 	
 	private void initLayout() {
+		JPanel servicePanel = new JPanel();
+		servicePanel.setLayout(new BoxLayout(servicePanel, BoxLayout.LINE_AXIS));
+		servicePanel.add(_gameServiceLabel);
+		servicePanel.add(Box.createHorizontalGlue());
+		servicePanel.add(_connectButton);
+		servicePanel.add(_refreshButton);
+		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 5));
 		buttonPanel.add(Box.createHorizontalGlue());
-		buttonPanel.add(_connectGameServiceButton);
-		buttonPanel.add(_createGameButton);
-		buttonPanel.add(_refreshButton);
-		buttonPanel.add(_beitretenButton);
+		buttonPanel.add(_createButton);
+		buttonPanel.add(_joinButton);
 		
 		JPanel content = new JPanel(new BorderLayout());
-		
-		content.add(_gameServiceLabel, BorderLayout.NORTH);
+		content.add(servicePanel, BorderLayout.NORTH);
 		content.add(new JScrollPane(_gameList), BorderLayout.CENTER);
 		content.add(buttonPanel, BorderLayout.SOUTH);
 		
 		_frame.setContentPane(content);
 		_frame.pack();
+		_frame.setSize(600, 400);
 		_frame.setLocationRelativeTo(null);
 	}
 	
@@ -80,16 +87,16 @@ public class RestopolyLobbyUI {
 		_gameList.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				_beitretenButton.setEnabled(_gameList.getSelectedValue() != null);
+				_joinButton.setEnabled(_gameList.getSelectedValue() != null);
 			}
 		});
-		_connectGameServiceButton.addActionListener(new ActionListener() {
+		_connectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				_listener.onMitGameServiceVerbinden();
 			}
 		});
-		_createGameButton.addActionListener(new ActionListener() {
+		_createButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				_listener.onSpielAnlegen();
@@ -101,7 +108,7 @@ public class RestopolyLobbyUI {
 				_listener.onAktualisieren();
 			}
 		});
-		_beitretenButton.addActionListener(new ActionListener() {
+		_joinButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				_listener.onBeitreten(_gameList.getSelectedValue());
@@ -117,10 +124,20 @@ public class RestopolyLobbyUI {
 		_gameList.setListData(games.toArray(new Game[0]));
 	}
 	
-	public void setGameButtonsEnabled(boolean enable) {
-		_createGameButton.setEnabled(enable);
+	public void setConnectEnabled(boolean enable) {
+		_connectButton.setEnabled(enable);
+	}
+	
+	public void setCreateEnabled(boolean enable) {
+		_createButton.setEnabled(enable);
+	}
+	
+	public void setRefreshEnabled(boolean enable) {
 		_refreshButton.setEnabled(enable);
-		_beitretenButton.setEnabled(enable);
+	}
+	
+	public void setJoinEnabled(boolean enable) {
+		_joinButton.setEnabled(enable);
 	}
 	
 	public void showFehlermeldung(String fehlermeldung) {

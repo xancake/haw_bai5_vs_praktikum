@@ -22,7 +22,10 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 	public RestopolyLobbyController() throws UnirestException, MalformedURLException {
 		_yellowpages = new YellowPagesRestClient(YellowPagesRestClient.HAW_YELLOW_PAGES_INTERNAL);
 		_ui = new RestopolyLobbyUI(this);
-		_ui.setGameButtonsEnabled(false);
+		_ui.setConnectEnabled(true);
+		_ui.setRefreshEnabled(false);
+		_ui.setCreateEnabled(false);
+		_ui.setJoinEnabled(false);
 	}
 	
 	public void start() {
@@ -36,7 +39,8 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 			if(gameService != null) {
 				_gamesClient = new GamesRestClient(gameService.getUri());
 				_ui.setGameService(gameService);
-				_ui.setGameButtonsEnabled(true);
+				_ui.setRefreshEnabled(true);
+				_ui.setCreateEnabled(true);
 				onAktualisieren();
 			}
 		} catch(MalformedURLException e) {
