@@ -9,7 +9,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class DiceRestClient extends AbstractRestClient {
 	public DiceRestClient(String url) throws MalformedURLException {
-		super(url, "/dice");
+		super(url, ""/*"/dice"*/);
 	}
 	
 	public String rollDice() throws UnirestException {
