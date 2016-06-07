@@ -68,4 +68,18 @@ public class Event {
 			&& (resource == null || Pattern.matches(resource, other.getResource()))
 			&& (player == null   || Pattern.matches(player,   other.getPlayer()));
 	}
+
+	@Override
+	public String toString() {
+		return "Event{" +
+				"id='" + id + '\'' +
+				", game='" + game + '\'' +
+				", type='" + type + '\'' +
+				", name='" + name + '\'' +
+				", reason='" + reason + '\'' +
+				", resource='" + resource + '\'' +
+				", player='" + player + '\'' +
+				", time='" + time + '\'' +
+				'}';
+	}
 }

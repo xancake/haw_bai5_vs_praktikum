@@ -72,7 +72,6 @@ public class RestopolyGameController implements RestopolyGameListener_I, ClientS
 
 	@Override
 	public void onEvent(Event e) {
-		// TODO Auto-generated method stub
-		
+		System.out.println(e.toString());
 	}
 }
