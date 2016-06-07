@@ -9,6 +9,7 @@ import org.haw.vs.praktikum.gwln.client.restclient.game.GamesRestClient;
 import org.haw.vs.praktikum.gwln.client.service.ClientService;
 import org.haw.vs.praktikum.gwln.client.service.ClientServiceListener_I;
 import org.haw.vs.praktikum.gwln.events.Event;
+import org.haw.vs.praktikum.gwln.events.rest.client.EventManagerRestClient;
 import org.json.JSONObject;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -35,6 +36,15 @@ public class RestopolyGameController implements RestopolyGameListener_I, ClientS
 		_ui.show();
 		_clientService.start();
 		_clientService.addListener(this);
+		try {
+			EventManagerRestClient eventManagerRestClient = new EventManagerRestClient(_gamesClient.getGameServices(_game.getServices()).getString("events"));
+			Event prototype = new Event("",_game.getId(),"","","","","","");
+			eventManagerRestClient.postSubscription(prototype,_game.getId(),_clientService.getUri());
+		} catch (UnirestException e) {
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

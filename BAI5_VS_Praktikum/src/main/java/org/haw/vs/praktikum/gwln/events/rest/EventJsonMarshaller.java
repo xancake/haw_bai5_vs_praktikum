@@ -5,6 +5,10 @@ import org.json.JSONObject;
 
 public class EventJsonMarshaller {
 	public String marshall(Event event) {
+		return toJSONObject(event).toString();
+	}
+
+	public JSONObject toJSONObject(Event event){
 		JSONObject json = new JSONObject();
 		json.put("id", event.getId());
 		json.put("game", event.getGame());
@@ -14,7 +18,7 @@ public class EventJsonMarshaller {
 		json.put("resource", event.getResource());
 		json.put("player", event.getPlayer());
 		json.put("time", event.getTime());
-		return json.toString();
+		return json;
 	}
 	
 	public Event unmarshall(String source) {

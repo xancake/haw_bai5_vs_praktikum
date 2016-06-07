@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.json.JSONObject;
 
 public class EventManagerRestClient extends AbstractRestClient {
 	private static EventJsonMarshaller _marshaller = new EventJsonMarshaller();
@@ -64,9 +65,13 @@ public class EventManagerRestClient extends AbstractRestClient {
 		return subscriptions;
 	}
 	
-	public String postSubscription(Event prototypeEvent) throws UnirestException{
+	public String postSubscription(Event prototypeEvent,String gameUri, String callUri) throws UnirestException{
+		JSONObject body = new JSONObject();
+		body.put("game",gameUri);
+		body.put("uri", callUri);
+		body.put("event",_marshaller.toJSONObject(prototypeEvent));
 		HttpResponse<String> response = Unirest.post(getURL().toExternalForm() + "/subscriptions")
-												.body(_marshaller.marshall(prototypeEvent))
+												.body(body.toString())
 												.asString();
 		return response.getHeaders().getFirst(HttpHeader.LOCATION.asString());
 	}

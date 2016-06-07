@@ -2,6 +2,8 @@ package org.haw.vs.praktikum.gwln.client.service;
 
 import static spark.Spark.post;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +17,13 @@ import spark.Spark;
 
 public class ClientService {
 
+	private String _uri;
+
 	private List<ClientServiceListener_I> listeners = new ArrayList<>();
 	private EventJsonMarshaller eventJsonMarshaller = new EventJsonMarshaller();
 
 	private String clientTurn(Request request, Response response) {
-		listeners.forEach( (listener) -> listener.onTurn() );
+		listeners.forEach(ClientServiceListener_I::onTurn);
 		response.status(HttpStatus.OK_200);
 		return "OK";
 	}
@@ -32,8 +36,13 @@ public class ClientService {
 	}
 
 	public void start() {
-		post("/client/turn", 	(request, response) -> clientTurn(request, response) );
-		post("/client/event", 	(request, response) -> clientEvent(request, response) );
+		try {
+			_uri = "http://" + InetAddress.getLocalHost().getHostAddress() + ":4567";
+			post("/client/turn", this::clientTurn);
+			post("/client/event", this::clientEvent);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void stop() {
@@ -51,5 +60,9 @@ public class ClientService {
 	public static void main(String... args) {
 		Spark.port(12345);
 		new ClientService().start();
+	}
+
+	public String getUri(){
+		return _uri;
 	}
 }
