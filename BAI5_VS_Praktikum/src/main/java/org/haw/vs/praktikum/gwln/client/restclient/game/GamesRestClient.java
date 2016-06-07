@@ -90,6 +90,11 @@ public class GamesRestClient extends AbstractRestClient {
 		JSONObject currentPlayer = response.getBody().getObject();
 		return currentPlayer.getString("user").equals(user);
 	}
+
+	public boolean putPlayerReady(String user) throws UnirestException {
+		HttpResponse<String> response = Unirest.put(user+"/ready").asString();
+		return response.getStatus()<300;
+	}
 	
 	public static Game getGame(URL url) throws UnirestException {
 		HttpResponse<String> response = Unirest.get(url.toExternalForm()).asString();

@@ -19,14 +19,16 @@ public class RestopolyGameController implements RestopolyGameListener_I, ClientS
 	private DiceRestClient _diceClient;
 	private ClientService _clientService;
 	private Game _game;
+	private String _userURI;
 	
-	public RestopolyGameController(GamesRestClient gamesClient, Game game) throws UnirestException, MalformedURLException {
+	public RestopolyGameController(GamesRestClient gamesClient, Game game, String userURI) throws UnirestException, MalformedURLException {
 		_ui = new RestopolyGameUI(this);
 		_gamesClient = Objects.requireNonNull(gamesClient);
 		_game = Objects.requireNonNull(game);
 		JSONObject services = _gamesClient.getGameServices(game.getServices());
 		_diceClient = new DiceRestClient(services.getString("dice"));
 		_clientService = new ClientService();
+		_userURI = userURI;
 	}
 	
 	public void start() {
@@ -38,9 +40,17 @@ public class RestopolyGameController implements RestopolyGameListener_I, ClientS
 	@Override
 	public void onWuerfeln() {
 		try {
-			_diceClient.rollDice();
+			_ui.setDiceResult(_diceClient.rollDice());
 		} catch(UnirestException e) {
 			// TODO: Fehlermeldung auf GUI?
+		}
+	}
+
+	public void onReady() {
+		try {
+			_gamesClient.putPlayerReady(_userURI);
+		} catch (UnirestException e){
+			// TODO: Fehlermeldung auf GUI
 		}
 	}
 

@@ -99,12 +99,12 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 			
 			String usersService = selectServiceOfTypeEndlessly("users");
 			UserRestClient userClient = new UserRestClient(usersService);
-			String user = userClient.registerUser(username);
+			String userURI = userClient.registerUser(username);
 			
-			_gamesClient.registerPlayer(game.getId().substring("/games".length()), user, "pawn", "account", "false");
+			_gamesClient.registerPlayer(game.getId().substring("/games".length()), userURI, "pawn", "account", "false");
 			_ui.hide();
 			
-			RestopolyGameController gameController = new RestopolyGameController(_gamesClient, game);
+			RestopolyGameController gameController = new RestopolyGameController(_gamesClient, game, userURI);
 			gameController.start();
 			
 		} catch(MalformedURLException e) {
