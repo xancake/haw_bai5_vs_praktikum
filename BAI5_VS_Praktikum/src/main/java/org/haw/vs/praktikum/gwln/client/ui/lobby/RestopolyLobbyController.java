@@ -75,7 +75,7 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 					System.out.println("[!!!] " + game);
 					String gameStatus = _gamesClient.getGameStatus(game.getId());
 					System.out.println("[!!!] Status: " + gameStatus);
-					return !"registration".equals(gameStatus);
+					return !"registration".equalsIgnoreCase(gameStatus);
 				} catch(UnirestException e) {
 					e.printStackTrace();
 					return false;

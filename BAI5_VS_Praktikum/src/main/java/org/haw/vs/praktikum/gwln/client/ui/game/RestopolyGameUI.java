@@ -26,11 +26,12 @@ public class RestopolyGameUI {
 		_wuerfelnButton = new JButton("Würfeln");
 		_wuerfelnButton.setEnabled(false);
 		_readyButton = new JButton("Ready");
-		_diceResultLabel = new JLabel("");
+		_diceResultLabel = new JLabel(" ");
 	}
 	
 	private void initLayout() {
-		JPanel content = new JPanel(new BorderLayout());
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.PAGE_AXIS));
 		content.add(_diceResultLabel);
 		content.add(_wuerfelnButton);
 		content.add(_readyButton);
