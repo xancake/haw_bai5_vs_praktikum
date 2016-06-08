@@ -60,7 +60,7 @@ public class RestopolyGameController implements RestopolyGameListener_I, ClientS
 
 	public void onReady() {
 		try {
-			String readyURI = _player.getId().endsWith("ready")?_player.getId():_player.getReadinessService();
+			String readyURI = _player.getReadinessService();
 			_gamesClient.putPlayerReady(readyURI);
 		} catch (UnirestException e){
 			// TODO: Fehlermeldung auf GUI

@@ -10,14 +10,20 @@ public class Player {
 	private String myAccount;
 	private Boolean myReadiness;
 	private String myReadinessService;
+	private String baseUri;
 	
-	public Player(String user, String id, String pawn, String account) {
+	public Player(String user, String id, String pawn, String account, String baseUri, String readyService) {
 		myUser = user;
 		myId = id;
 		myPawn = pawn;
 		myAccount = account;
 		myReadiness = false;
-		myReadinessService = myId + "/ready";
+		if(readyService==null){
+			myReadinessService = myId + "/ready";
+		}else {
+			myReadinessService = readyService;
+		}
+		this.baseUri = baseUri;
 	}
 	
 	public String getUser() {
@@ -55,6 +61,10 @@ public class Player {
 	}
 	public void setReadinessService(String readinessService) {
 		myReadinessService = readinessService;
+	}
+	
+	public String getBaseUri(){
+		return baseUri;
 	}
 
 	public static String getJsonString(Player player) {

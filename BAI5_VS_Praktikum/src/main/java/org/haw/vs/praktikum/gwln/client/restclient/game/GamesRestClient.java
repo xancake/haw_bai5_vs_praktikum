@@ -75,13 +75,13 @@ public class GamesRestClient extends AbstractRestClient {
 		Player player = null;
 		try {
 			JSONObject responseObject = new JSONObject(response.getBody());
-			player = new Player(responseObject.getString("user"),responseObject.getString("id"),responseObject.getString("pawn"),responseObject.getString("account"));
+			player = new Player(responseObject.getString("user"),responseObject.getString("id"),responseObject.getString("pawn"),responseObject.getString("account"),getURL().getProtocol()+"://"+getURL().getAuthority(),responseObject.optString("ready"));
 		} catch (JSONException e){
 			//e.printStackTrace();
 			System.err.println(response.getHeaders().getFirst("Location"));
 			HttpResponse<String> headerResponse = Unirest.get(response.getHeaders().getFirst("Location")).asString();
 			JSONObject responseObject = new JSONObject(headerResponse.getBody());
-			player = new Player(responseObject.getString("user"),responseObject.getString("id"),responseObject.getString("pawn"),responseObject.getString("account"));
+			player = new Player(responseObject.getString("user"),responseObject.getString("id"),responseObject.getString("pawn"),responseObject.getString("account"),getURL().getProtocol()+"://"+getURL().getAuthority(),responseObject.optString("ready"));
 		}
 		return player;
 	}
