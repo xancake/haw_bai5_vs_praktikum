@@ -4,11 +4,12 @@ import static spark.Spark.delete;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.Spark.put;
-
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpStatus;
 import org.haw.vs.praktikum.gwln.bank.Account;
@@ -23,11 +24,12 @@ import org.haw.vs.praktikum.gwln.bank.rest.TransferJsonMarshaller;
 import org.haw.vs.praktikum.gwln.client.restclient.game.Game;
 import org.haw.vs.praktikum.gwln.client.restclient.game.GamesRestClient;
 import org.haw.vs.praktikum.gwln.events.Event;
+import org.haw.vs.praktikum.gwln.events.rest.EventJsonMarshaller;
 import org.haw.vs.praktikum.gwln.events.rest.client.EventManagerRestClient;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesNotAvailableException;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesRegistry;
 import org.json.JSONObject;
-
+import com.mashape.unirest.http.exceptions.UnirestException;
 import spark.Request;
 import spark.Response;
 
@@ -40,6 +42,7 @@ public class BankManagerWebService {
 	private static final BankJsonMarshaller BANK_MARSHALLER = new BankJsonMarshaller();
 	private static final AccountJsonMarshaller ACCOUNT_MARSHALLER = new AccountJsonMarshaller();
 	private static final TransferJsonMarshaller TRANSFER_MARSHALLER = new TransferJsonMarshaller();
+	private static final EventJsonMarshaller EVENT_MARSHALLER = new EventJsonMarshaller();
 	
 	private static final BankManager MANAGER = new BankManager();
 	
@@ -216,14 +219,10 @@ public class BankManagerWebService {
 			Bank bank = MANAGER.getBank(Integer.parseInt(bankId));
 			bank.commitTransaction(transaction);
 			
-			URL gameURL = new URL(bank.getGame());
-			GamesRestClient gamesClient = new GamesRestClient(gameURL.getProtocol() + "://" + gameURL.getAuthority());
-			Game game = gamesClient.getGame(gameURL.getPath());
-			JSONObject services = gamesClient.getGameServices(game.getServices());
-			EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
 			String time = String.valueOf(System.currentTimeMillis());
+			List<Event> events = new ArrayList<>();
 			for(Transfer transfer : transaction.getTransfers()) {
-				eventClient.postEvent(new Event(
+				Event eventFrom = new Event(
 						"siehe Location Header", 
 						bank.getGame(), 
 						"Bank Transaction", 
@@ -232,8 +231,8 @@ public class BankManagerWebService {
 						transaction.getUri(), 
 						transfer.getFrom().getPlayer(),
 						time
-				));
-				eventClient.postEvent(new Event(
+				);
+				Event eventTo = new Event(
 						"siehe Location Header", 
 						bank.getGame(), 
 						"Bank Transaction", 
@@ -242,12 +241,20 @@ public class BankManagerWebService {
 						transaction.getUri(), 
 						transfer.getTo().getPlayer(),
 						time
-				));
+				);
+				events.add(eventFrom);
+				events.add(eventTo);
 			}
 			
+			try {
+				meldeEvents(bank, events);
+			} catch(MalformedURLException | UnirestException e) {
+				// Wenn das Event nicht zugestellt werden kann, ist halt pech. Wir geben es ja trotzdem zurück
+				System.err.println("[commit transaction] Event konnte nicht zugestellt werden: " + e.getMessage());
+			}
 			
 			response.status(HttpStatus.ACCEPTED_202);
-			return "Transaktion " + String.valueOf(transaction.getId()) + " ausgeführt";
+			return EVENT_MARSHALLER.marshall(events);
 		} catch(InsufficientFondsException e) {
 			response.status(HttpStatus.FORBIDDEN_403);
 			return e.getMessage();
@@ -266,22 +273,25 @@ public class BankManagerWebService {
 			Bank bank = MANAGER.getBank(Integer.parseInt(bankId));
 			bank.rollbackTransaction(transaction);
 			
-			URL gameURL = new URL(bank.getGame());
-			GamesRestClient gamesClient = new GamesRestClient(gameURL.getProtocol() + "://" + gameURL.getAuthority());
-			Game game = gamesClient.getGame(gameURL.getPath());
-			JSONObject services = gamesClient.getGameServices(game.getServices());
-			EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
-			eventClient.postEvent(new Event("siehe Location Header", 
-											bank.getGame(), 
-											"Bank Transaction", 
-											"Bank Transaction Event", 
-											"Transaction Cancelled", 
-											transaction.getUri(), 
-											null,
-											System.currentTimeMillis()+""));
+			Event event = new Event("siehe Location Header", 
+					bank.getGame(), 
+					"Bank Transaction", 
+					"Bank Transaction Event", 
+					"Transaction Cancelled", 
+					transaction.getUri(), 
+					null,
+					System.currentTimeMillis()+""
+			);
 			
-			response.status(HttpStatus.NO_CONTENT_204);
-			return "Transaktion " + String.valueOf(transaction.getId()) + " abgebrochen";
+			try {
+				meldeEvents(bank, event);
+			} catch(MalformedURLException | UnirestException e) {
+				// Wenn das Event nicht zugestellt werden kann, ist halt pech. Wir geben es ja trotzdem zurück
+				System.err.println("[delete transaction] Event konnte nicht zugestellt werden: " + e.getMessage());
+			}
+			
+			response.status(HttpStatus.ACCEPTED_202);
+			return EVENT_MARSHALLER.marshall(event);
 		} catch(Exception e) {
 			response.status(HttpStatus.PRECONDITION_FAILED_412);
 			return e.getMessage();
@@ -302,27 +312,32 @@ public class BankManagerWebService {
 			if(transactionId == null) {
 				int transferId = bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
 				
-				URL gameURL = new URL(bank.getGame());
-				GamesRestClient gamesClient = new GamesRestClient(gameURL.getProtocol() + "://" + gameURL.getAuthority());
-				Game game = gamesClient.getGame(gameURL.getPath());
-				JSONObject services = gamesClient.getGameServices(game.getServices());
-				EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
-				eventClient.postEvent(new Event("siehe Location Header", 
-												bank.getGame(), 
-												"Bank Transaction", 
-												"Bank Transaction Event", 
-												"Transfer to " + toAccount.getPlayer(), 
-												URI + "/banks/" + bankId + "/transfers/" + transferId, 
-												toAccount.getPlayer(),
-												System.currentTimeMillis()+""));
+				Event event = new Event("siehe Location Header", 
+						bank.getGame(), 
+						"Bank Transaction", 
+						"Bank Transaction Event", 
+						"Transfer to " + toAccount.getPlayer(), 
+						URI + "/banks/" + bankId + "/transfers/" + transferId, 
+						toAccount.getPlayer(),
+						System.currentTimeMillis()+""
+				);
 				
+				try {
+					meldeEvents(bank, event);
+				} catch(MalformedURLException | UnirestException e) {
+					// Wenn das Event nicht zugestellt werden kann, ist halt pech. Wir geben es ja trotzdem zurück
+					System.err.println("[transfer to] Event konnte nicht zugestellt werden: " + e.getMessage());
+				}
+				
+				response.status(HttpStatus.CREATED_201);
+				return EVENT_MARSHALLER.marshall(event);
 			} else {
 				Transaction transaction = bank.getTransaction(Integer.parseInt(transactionId));
 				bank.transactionalTransfer(transaction, fromAccount, toAccount, Integer.parseInt(amount), reason);
+				
+				response.status(HttpStatus.CREATED_201);
+				return "Transfer erfolgreich der Transaktion angehängt";
 			}
-			
-			response.status(HttpStatus.CREATED_201);
-			return "Transfer erfolgreich";
 		} catch(InsufficientFondsException e) {
 			response.status(HttpStatus.FORBIDDEN_403);
 			return e.getMessage();
@@ -346,26 +361,32 @@ public class BankManagerWebService {
 			if(transactionId == null) {
 				int transferId = bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
 				
-				URL gameURL = new URL(bank.getGame());
-				GamesRestClient gamesClient = new GamesRestClient(gameURL.getProtocol() + "://" + gameURL.getAuthority());
-				Game game = gamesClient.getGame(gameURL.getPath());
-				JSONObject services = gamesClient.getGameServices(game.getServices());
-				EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
-				eventClient.postEvent(new Event("siehe Location Header", 
-												bank.getGame(), 
-												"Bank Transaction", 
-												"Bank Transaction Event", 
-												"Transfer from " + fromAccount.getPlayer(), 
-												URI + "/banks/" + bankId + "/transfers/" + transferId, 
-												fromAccount.getPlayer(),
-												System.currentTimeMillis()+""));
+				Event event = new Event("siehe Location Header", 
+						bank.getGame(), 
+						"Bank Transaction", 
+						"Bank Transaction Event", 
+						"Transfer from " + fromAccount.getPlayer(), 
+						URI + "/banks/" + bankId + "/transfers/" + transferId, 
+						fromAccount.getPlayer(),
+						System.currentTimeMillis()+""
+				);
+				
+				try {
+					meldeEvents(bank, event);
+				} catch(MalformedURLException | UnirestException e) {
+					// Wenn das Event nicht zugestellt werden kann, ist halt pech. Wir geben es ja trotzdem zurück
+					System.err.println("[transfer from] Event konnte nicht zugestellt werden: " + e.getMessage());
+				}
+				
+				response.status(HttpStatus.CREATED_201);
+				return EVENT_MARSHALLER.marshall(event);
 			} else {
 				Transaction transaction = bank.getTransaction(Integer.parseInt(transactionId));
 				bank.transactionalTransfer(transaction, fromAccount, toAccount, Integer.parseInt(amount), reason);
+				
+				response.status(HttpStatus.CREATED_201);
+				return "Transfer erfolgreich der Transaktion angehängt";
 			}
-			
-			response.status(HttpStatus.CREATED_201);
-			return "Transfer erfolgreich";
 		} catch(InsufficientFondsException e) {
 			response.status(HttpStatus.FORBIDDEN_403);
 			return e.getMessage();
@@ -387,26 +408,12 @@ public class BankManagerWebService {
 			Bank bank = MANAGER.getBank(Integer.parseInt(bankId));
 			Account fromAccount = bank.getAccount(from.substring(from.lastIndexOf("/")+1));
 			Account toAccount = bank.getAccount(to.substring(to.lastIndexOf("/")+1));
+			
 			if(transactionId == null) {
 				int transferId = bank.transfer(fromAccount, toAccount, Integer.parseInt(amount), reason);
 				
-				URL gameURL = new URL(bank.getGame());
-				GamesRestClient gamesClient = new GamesRestClient(gameURL.getProtocol() + "://" + gameURL.getAuthority());
-				Game game = gamesClient.getGame(gameURL.getPath());
-				JSONObject services = gamesClient.getGameServices(game.getServices());
-				EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
 				String time = String.valueOf(System.currentTimeMillis());
-				eventClient.postEvent(new Event(
-						"siehe Location Header", 
-						bank.getGame(), 
-						"Bank Transaction", 
-						"Bank Transaction Event", 
-						"Transfer to " + toAccount.getPlayer(), 
-						URI + "/banks/" + bankId + "/transfers/" + transferId, 
-						toAccount.getPlayer(),
-						time
-				));
-				eventClient.postEvent(new Event(
+				Event eventFrom = new Event(
 						"siehe Location Header", 
 						bank.getGame(), 
 						"Bank Transaction", 
@@ -415,20 +422,55 @@ public class BankManagerWebService {
 						URI + "/banks/" + bankId + "/transfers/" + transferId, 
 						fromAccount.getPlayer(),
 						time
-				));
+				);
+				Event eventTo = new Event(
+						"siehe Location Header", 
+						bank.getGame(), 
+						"Bank Transaction", 
+						"Bank Transaction Event", 
+						"Transfer to " + toAccount.getPlayer(), 
+						URI + "/banks/" + bankId + "/transfers/" + transferId, 
+						toAccount.getPlayer(),
+						time
+				);
+				
+				try {
+					meldeEvents(bank, eventFrom, eventTo);
+				} catch(MalformedURLException | UnirestException e) {
+					// Wenn das Event nicht zugestellt werden kann, ist halt pech. Wir geben es ja trotzdem zurück
+					System.err.println("[transfer from to] Event konnte nicht zugestellt werden: " + e.getMessage());
+				}
+				
+				response.status(HttpStatus.CREATED_201);
+				return EVENT_MARSHALLER.marshall(eventFrom, eventTo);
 			} else {
 				Transaction transaction = bank.getTransaction(Integer.parseInt(transactionId));
 				bank.transactionalTransfer(transaction, fromAccount, toAccount, Integer.parseInt(amount), reason);
+				
+				response.status(HttpStatus.CREATED_201);
+				return "Transfer erfolgreich der Transaktion angehängt";
 			}
-			
-			response.status(HttpStatus.CREATED_201);
-			return "Transfer erfolgreich";
 		} catch(InsufficientFondsException e) {
 			response.status(HttpStatus.FORBIDDEN_403);
 			return e.getMessage();
 		} catch(Exception e) {
 			response.status(HttpStatus.PRECONDITION_FAILED_412);
 			return e.getMessage();
+		}
+	}
+	
+	private static void meldeEvents(Bank bank, Event... events) throws MalformedURLException, UnirestException {
+		meldeEvents(bank, Arrays.asList(events));
+	}
+	
+	private static void meldeEvents(Bank bank, List<Event> events) throws MalformedURLException, UnirestException {
+		URL gameURL = new URL(bank.getGame());
+		GamesRestClient gamesClient = new GamesRestClient(gameURL.getProtocol() + "://" + gameURL.getAuthority());
+		Game game = gamesClient.getGame(gameURL.getPath());
+		JSONObject services = gamesClient.getGameServices(game.getServices());
+		EventManagerRestClient eventClient = new EventManagerRestClient(services.getString("events"));
+		for(Event event : events) {
+			eventClient.postEvent(event);
 		}
 	}
 	

@@ -1,11 +1,31 @@
 package org.haw.vs.praktikum.gwln.events.rest;
 
+import java.util.Arrays;
+import java.util.List;
 import org.haw.vs.praktikum.gwln.events.Event;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class EventJsonMarshaller {
+	
+	public String marshall(Event... events) {
+		return marshall(Arrays.asList(events));
+	}
+	
+	public String marshall(List<Event> events) {
+		return toJSONArray(events).toString();
+	}
+	
 	public String marshall(Event event) {
 		return toJSONObject(event).toString();
+	}
+	
+	public JSONArray toJSONArray(List<Event> events) {
+		JSONArray array = new JSONArray();
+		for(Event event : events) {
+			array.put(toJSONObject(event));
+		}
+		return array;
 	}
 
 	public JSONObject toJSONObject(Event event){
