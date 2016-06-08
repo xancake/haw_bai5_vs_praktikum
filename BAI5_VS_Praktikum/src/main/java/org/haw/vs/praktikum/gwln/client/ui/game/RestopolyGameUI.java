@@ -37,6 +37,7 @@ public class RestopolyGameUI {
 
 		_frame.setContentPane(content);
 		_frame.pack();
+		_frame.setSize(600, 400);
 		_frame.setLocationRelativeTo(null);
 	}
 	
