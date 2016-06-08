@@ -58,6 +58,8 @@ public class RestopolyLobbyUI {
 	}
 	
 	private void initLayout() {
+		_gameList.setCellRenderer(new GameListCellRenderer());
+		
 		JPanel servicePanel = new JPanel();
 		servicePanel.setLayout(new BoxLayout(servicePanel, BoxLayout.LINE_AXIS));
 		servicePanel.add(_gameServiceLabel);
@@ -144,11 +146,11 @@ public class RestopolyLobbyUI {
 		JOptionPane.showMessageDialog(_frame, fehlermeldung, "ERROR", JOptionPane.ERROR_MESSAGE);
 	}
 	
-	public void show(){
+	public void show() {
 		_frame.setVisible(true);
 	}
 	
-	public void hide(){
+	public void hide() {
 		_frame.setVisible(false);
 	}
 }
