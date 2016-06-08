@@ -18,8 +18,8 @@ import com.mashape.unirest.http.exceptions.UnirestException;
  * Client für den Yellow-Pages Web-Service von Andrej.
  */
 public class YellowPagesRestClient extends AbstractRestClient {
-	public static final String HAW_YELLOW_PAGES_INTERNAL = "http://172.18.0.5:4567";
-	public static final String HAW_YELLOW_PAGES_EXTERNAL = "http://141.22.34.15/cnt/172.18.0.5/4567";
+	public static final String HAW_YELLOW_PAGES_INTERNAL = "http://172.18.0.17:4567";
+	public static final String HAW_YELLOW_PAGES_EXTERNAL = "http://141.22.34.15/cnt/172.18.0.17/4567";
 	
 	private ServiceJsonMarshaller _marshaller;
 	private String _username;
