@@ -1,6 +1,5 @@
 package org.haw.vs.praktikum.gwln.client.ui.game;
 
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Objects;
@@ -37,6 +36,8 @@ public class RestopolyGameUI {
 		content.add(_readyButton);
 
 		_frame.setContentPane(content);
+		_frame.pack();
+		_frame.setLocationRelativeTo(null);
 	}
 	
 	private void initListeners() {
