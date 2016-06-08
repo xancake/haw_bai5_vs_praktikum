@@ -12,7 +12,7 @@ public class DiceRestClient extends AbstractRestClient {
 		super(url, ""/*"/dice"*/);
 	}
 	
-	public String rollDice() throws UnirestException {
-		return Unirest.get(getURL().toExternalForm()).asString().getBody();
+	public String rollDice(String rollURI) throws UnirestException {
+		return Unirest.post(rollURI).asString().getBody();
 	}
 }

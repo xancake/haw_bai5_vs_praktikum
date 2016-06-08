@@ -63,5 +63,6 @@ public class RestopolyGameUI {
 
 	public void setDiceResult(String result){
 		_diceResultLabel.setText(result+" gewürfelt");
+		_frame.repaint();
 	}
 }

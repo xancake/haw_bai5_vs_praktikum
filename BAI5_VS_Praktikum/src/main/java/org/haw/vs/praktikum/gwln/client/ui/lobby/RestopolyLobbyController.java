@@ -9,6 +9,7 @@ import org.haw.vs.praktikum.gwln.client.restclient.game.Game;
 import org.haw.vs.praktikum.gwln.client.restclient.game.GamesRestClient;
 import org.haw.vs.praktikum.gwln.client.restclient.user.UserRestClient;
 import org.haw.vs.praktikum.gwln.client.ui.game.RestopolyGameController;
+import org.haw.vs.praktikum.gwln.player.Player;
 import org.haw.vs.praktikum.gwln.yellowpages.Service;
 import org.haw.vs.praktikum.gwln.yellowpages.YellowPagesRestClient;
 
@@ -101,10 +102,10 @@ public class RestopolyLobbyController implements RestopolyLobbyListener_I {
 			UserRestClient userClient = new UserRestClient(usersService);
 			String userURI = userClient.registerUser(username);
 			
-			_gamesClient.registerPlayer(game.getId().substring("/games".length()), userURI, "pawn", "account", "false");
+			Player player = _gamesClient.registerPlayer(game.getId().substring("/games".length()), userURI, "", "", "");
 			_ui.hide();
 			
-			RestopolyGameController gameController = new RestopolyGameController(_gamesClient, game, userURI);
+			RestopolyGameController gameController = new RestopolyGameController(_gamesClient, game, player);
 			gameController.start();
 			
 		} catch(MalformedURLException e) {

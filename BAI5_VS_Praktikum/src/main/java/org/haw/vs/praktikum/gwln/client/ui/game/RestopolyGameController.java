@@ -10,6 +10,7 @@ import org.haw.vs.praktikum.gwln.client.service.ClientService;
 import org.haw.vs.praktikum.gwln.client.service.ClientServiceListener_I;
 import org.haw.vs.praktikum.gwln.events.Event;
 import org.haw.vs.praktikum.gwln.events.rest.client.EventManagerRestClient;
+import org.haw.vs.praktikum.gwln.player.Player;
 import org.json.JSONObject;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -20,16 +21,16 @@ public class RestopolyGameController implements RestopolyGameListener_I, ClientS
 	private DiceRestClient _diceClient;
 	private ClientService _clientService;
 	private Game _game;
-	private String _userURI;
+	private Player _player;
 	
-	public RestopolyGameController(GamesRestClient gamesClient, Game game, String userURI) throws UnirestException, MalformedURLException {
+	public RestopolyGameController(GamesRestClient gamesClient, Game game, Player player) throws UnirestException, MalformedURLException {
 		_ui = new RestopolyGameUI(this);
 		_gamesClient = Objects.requireNonNull(gamesClient);
 		_game = Objects.requireNonNull(game);
-		JSONObject services = _gamesClient.getGameServices(game.getServices());
-		_diceClient = new DiceRestClient(services.getString("dice"));
+		//JSONObject services = _gamesClient.getGameServices(game.getServices());
+		//_diceClient = new DiceRestClient(services.getString("dice"));
 		_clientService = new ClientService();
-		_userURI = userURI;
+		_player = Objects.requireNonNull(player);
 	}
 	
 	public void start() {
@@ -50,7 +51,8 @@ public class RestopolyGameController implements RestopolyGameListener_I, ClientS
 	@Override
 	public void onWuerfeln() {
 		try {
-			_ui.setDiceResult(_diceClient.rollDice());
+			//_diceClient.rollDice(_player.getPawn()+"/roll");
+			_ui.setDiceResult(_diceClient.rollDice(_player.getPawn()+"/roll"));
 		} catch(UnirestException e) {
 			// TODO: Fehlermeldung auf GUI?
 		}
@@ -58,7 +60,8 @@ public class RestopolyGameController implements RestopolyGameListener_I, ClientS
 
 	public void onReady() {
 		try {
-			_gamesClient.putPlayerReady(_userURI);
+			String readyURI = _player.getId().endsWith("ready")?_player.getId():_player.getReadinessService();
+			_gamesClient.putPlayerReady(readyURI);
 		} catch (UnirestException e){
 			// TODO: Fehlermeldung auf GUI
 		}
