@@ -99,19 +99,19 @@ public class BankManagerWebService {
 	
 	private static String putBank(Request request, Response response) {
 		try {
-			String bankId = request.params("bankId");
-			JSONObject json = new JSONObject(request.body());
-			String accounts = json.getString("accounts");
-			String transfers = json.getString("transfers");
-			
-			Bank bank = MANAGER.getBank(Integer.parseInt(bankId));
-			// TODO: accounts übernehmen
-			// TODO: transfers übernehmen
+			// TODO: Not yet implemented
+//			String bankId = request.params("bankId");
+//			JSONObject json = new JSONObject(request.body());
+//			String accounts = json.getString("accounts");
+//			String transfers = json.getString("transfers");
+//			
+//			Bank bank = MANAGER.getBank(Integer.parseInt(bankId));
+//			// TODO: accounts übernehmen
+//			// TODO: transfers übernehmen
 			
 //			response.status(HttpStatus.ACCEPTED_202);
 //			return "Bank '" + bankId + "' erfolgreich aktualisiert";
 			
-			// TODO: Not yet implemented
 			response.status(HttpStatus.NOT_IMPLEMENTED_501);
 			return "Not yet implemented";
 		} catch(Exception e) {
