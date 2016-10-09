@@ -2,7 +2,6 @@ package org.haw.vs.praktikum.gwln.client.ui.game;
 
 import java.net.MalformedURLException;
 import java.util.Objects;
-
 import org.haw.vs.praktikum.gwln.client.restclient.dice.DiceRestClient;
 import org.haw.vs.praktikum.gwln.client.restclient.game.Game;
 import org.haw.vs.praktikum.gwln.client.restclient.game.GamesRestClient;
@@ -11,8 +10,6 @@ import org.haw.vs.praktikum.gwln.client.service.ClientServiceListener_I;
 import org.haw.vs.praktikum.gwln.events.Event;
 import org.haw.vs.praktikum.gwln.events.rest.client.EventManagerRestClient;
 import org.haw.vs.praktikum.gwln.player.Player;
-import org.json.JSONObject;
-
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 public class RestopolyGameController implements RestopolyGameListener_I, ClientServiceListener_I {
